@@ -1,3 +1,7 @@
+// Copyright 2012 Paul Bellamy. All rights reserved.
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file.
+
 package pipe
 
 // Implement this interface in your object to pass it to Pipe.Add
@@ -7,6 +11,7 @@ type Transformer interface {
 
 type transformer func(in interface{}) interface{}
 
+// A Pipe is a set of transforms being applied along the channel
 type Pipe struct {
 	length     int
 	inputs     []chan interface{}
