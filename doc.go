@@ -40,15 +40,17 @@ You can, of course, modify the items flowing through the pipe:
   // Set up our pipe
   input := make(chan interface{}, 5)
   output := make(chan interface{}, 5)
-  pipe := NewPipe(input, output)
 
-  // Only allow ints divisible by 5
-  pipe.Filter(func(item interface{}) bool {
+  NewPipe(input, output).Filter(func(item interface{}) bool {
+    // Only allow ints divisible by 5
     return (item.(int) % 5) == 0
-  })
+  }).Map(func(item interface{}) interface{} {
+    // Add 2 to each
+    return item.(int) + 2
+  }
 
   // Now we send some items
   input <- 1 // will be dropped
-  input <- 5 // will come through
+  input <- 5 // will come through as 7
 */
 package pipe
