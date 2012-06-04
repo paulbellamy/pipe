@@ -6,7 +6,7 @@ package pipe
 
 // Implement this interface in your object to pass it to Pipe.Reduce
 type Reducer interface {
-  Reduce(item interface{}) interface{}
+	Reduce(item interface{}) interface{}
 }
 
 // A function which reduces
@@ -14,43 +14,43 @@ type ReduceFunc func(result, item interface{}) interface{}
 
 // Add a transformation to the end of the pipe
 func (p *Pipe) ReduceFunc(initial interface{}, fn ReduceFunc) {
-  p.addStage()
+	p.addStage()
 	go p.reducerHandler(initial, fn, p.length-1)()
 }
 
 // Add a transformation to the end of the pipe
 func (p *Pipe) Reduce(t Reducer) {
-  p.addStage()
-  var pos int = p.length - 1
-  var result interface{}
-  go func() {
-    for {
-      item, ok := <-p.prevChan(pos)
-      if (!ok) {
-        break
-      }
+	p.addStage()
+	var pos int = p.length - 1
+	var result interface{}
+	go func() {
+		for {
+			item, ok := <-p.prevChan(pos)
+			if !ok {
+				break
+			}
 
-      result = t.Reduce(item)
-    }
-    // Input was closed, send the result
-    p.nextChan(pos) <- result
-    close(p.nextChan(pos))
-  }()
+			result = t.Reduce(item)
+		}
+		// Input was closed, send the result
+		p.nextChan(pos) <- result
+		close(p.nextChan(pos))
+	}()
 }
 
 func (p *Pipe) reducerHandler(initial interface{}, fn ReduceFunc, pos int) func() {
-  var result interface{} = initial
+	var result interface{} = initial
 	return func() {
-    for {
-      item, ok := <-p.prevChan(pos)
-      if (!ok) {
-        break
-      }
+		for {
+			item, ok := <-p.prevChan(pos)
+			if !ok {
+				break
+			}
 
-      result = fn(result, item)
+			result = fn(result, item)
 		}
-    // Input was closed, send the result
-    p.nextChan(pos) <- result
-    close(p.nextChan(pos))
+		// Input was closed, send the result
+		p.nextChan(pos) <- result
+		close(p.nextChan(pos))
 	}
 }

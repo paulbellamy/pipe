@@ -5,54 +5,54 @@
 package pipe
 
 import (
-  "testing"
+	"testing"
 )
 
 type FakeFilter struct {
-  count int
+	count int
 }
 
 // Only let even numbers through
 func (t *FakeFilter) Filter(item interface{}) bool {
-  return (item.(int) % 2) == 0
+	return (item.(int) % 2) == 0
 }
 
 func TestFilterFuncPipe(t *testing.T) {
-  in := make(chan interface{})
-  out := make(chan interface{})
-  pipe := NewPipe(in, out)
-  pipe.FilterFunc(func(item interface{}) bool  {
-    return (item.(int) % 2) == 0
-  })
+	in := make(chan interface{})
+	out := make(chan interface{})
+	pipe := NewPipe(in, out)
+	pipe.FilterFunc(func(item interface{}) bool {
+		return (item.(int) % 2) == 0
+	})
 
-  in <- 7
-  in <- 4
-  if result := <-out; result != 4 {
-    t.Fatal("even pipe received 7 and 4 but output ",result)
-  }
+	in <- 7
+	in <- 4
+	if result := <-out; result != 4 {
+		t.Fatal("even pipe received 7 and 4 but output ", result)
+	}
 
-  close(in)
+	close(in)
 }
 
 func TestFilterPipe(t *testing.T) {
-  in := make(chan interface{}, 10)
-  out := make(chan interface{}, 10)
-  pipe := NewPipe(in, out)
-  pipe.Filter(&FakeFilter{})
+	in := make(chan interface{}, 10)
+	out := make(chan interface{}, 10)
+	pipe := NewPipe(in, out)
+	pipe.Filter(&FakeFilter{})
 
-  // Push in some numbers
-  for i := 0; i < 5; i++ {
-    in <- i
-  }
+	// Push in some numbers
+	for i := 0; i < 5; i++ {
+		in <- i
+	}
 
-  // Check only evens came out
-  var result interface{}
-  for i := 0; i < 5; i += 2 {
-    result = <-out
-    if result.(int) != i {
-      t.Fatal("even object pipe let slip ",result.(int))
-    }
-  }
+	// Check only evens came out
+	var result interface{}
+	for i := 0; i < 5; i += 2 {
+		result = <-out
+		if result.(int) != i {
+			t.Fatal("even object pipe let slip ", result.(int))
+		}
+	}
 
-  close(in)
+	close(in)
 }

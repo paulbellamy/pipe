@@ -5,29 +5,29 @@
 package pipe
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestTakePipe(t *testing.T) {
-  in := make(chan interface{}, 5)
-  out := make(chan interface{}, 5)
-  pipe := NewPipe(in, out)
-  pipe.Take(3)
+	in := make(chan interface{}, 5)
+	out := make(chan interface{}, 5)
+	pipe := NewPipe(in, out)
+	pipe.Take(3)
 
-  for i := 0; i < 5; i++ {
-    in <- i
-  }
+	for i := 0; i < 5; i++ {
+		in <- i
+	}
 
-  count := 0
-  for {
-    _, ok := <-out
-    if !ok {
-      break
-    }
-    count++
-  }
+	count := 0
+	for {
+		_, ok := <-out
+		if !ok {
+			break
+		}
+		count++
+	}
 
-  if count != 3 {
-    t.Fatal("take(3) pipe received 5 items but output ",count)
-  }
+	if count != 3 {
+		t.Fatal("take(3) pipe received 5 items but output ", count)
+	}
 }

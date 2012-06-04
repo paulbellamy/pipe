@@ -6,27 +6,27 @@ package pipe
 
 // Add a transformation to the end of the pipe
 func (p *Pipe) Zip(other chan interface{}) {
-  p.addStage()
+	p.addStage()
 	go p.zipperHandler(other, p.length-1)()
 }
 
 func (p *Pipe) zipperHandler(other chan interface{}, pos int) func() {
 	return func() {
-    // only send num items
-    for {
-      a, ok := <-p.prevChan(pos)
-      if !ok {
-        break
-      }
+		// only send num items
+		for {
+			a, ok := <-p.prevChan(pos)
+			if !ok {
+				break
+			}
 
-      b, ok := <-other
-      if !ok {
-        break
-      }
+			b, ok := <-other
+			if !ok {
+				break
+			}
 
-      p.nextChan(pos) <- []interface{}{a, b}
+			p.nextChan(pos) <- []interface{}{a, b}
 		}
 
-    close(p.nextChan(pos))
+		close(p.nextChan(pos))
 	}
 }

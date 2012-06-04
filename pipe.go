@@ -29,11 +29,11 @@ func NewPipe(in, out chan interface{}) *Pipe {
 }
 
 // Create a new channel
-func (p *Pipe) addStage() (chan interface{}) {
+func (p *Pipe) addStage() chan interface{} {
 	p.length++
-  c := make(chan interface{})
-  p.inputs = append(p.inputs, c)
-  return c
+	c := make(chan interface{})
+	p.inputs = append(p.inputs, c)
+	return c
 }
 
 func (p *Pipe) prevChan(pos int) chan interface{} {
