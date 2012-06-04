@@ -4,7 +4,18 @@
 
 package pipe
 
-// Add a transformation to the end of the pipe
+// Group each message from the input channel with it's corresponding message
+// from the other channel. This will block on the first channel until it
+// receives a message, then block on the second until it gets one from there.
+// At that point an array containing both will be sent to the output channel.
+//
+// For example, if channel a is being zipped with channel b, and output on channel c:
+//
+//   a <- 1
+//   b <- 2
+//   result := <-c
+//
+// Here, result will equal []interface{}{1, 2}
 func (p *Pipe) Zip(other chan interface{}) *Pipe {
 	p.addStage()
 	go p.zipperHandler(other, p.length-1)()

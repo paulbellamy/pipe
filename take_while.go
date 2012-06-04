@@ -12,7 +12,9 @@ type TakeWhiler interface {
 // A function which takewhiles
 type TakeWhileFunc func(item interface{}) bool
 
-// Add a transformation to the end of the pipe
+// Accept items from the input pipe until the given function returns false.
+// After that, all input messages will be ignored and the output channel will
+// be closed.
 func (p *Pipe) TakeWhileFunc(fn TakeWhileFunc) *Pipe {
 	p.addStage()
 	go p.takewhileHandler(fn, p.length-1)()
@@ -20,7 +22,9 @@ func (p *Pipe) TakeWhileFunc(fn TakeWhileFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Accept items from the input pipe until the given function returns false.
+// After that, all input messages will be ignored and the output channel will
+// be closed.
 func (p *Pipe) TakeWhile(t TakeWhiler) *Pipe {
 	p.TakeWhileFunc(func(item interface{}) bool {
 		return t.TakeWhile(item)

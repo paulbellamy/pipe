@@ -4,7 +4,8 @@
 
 package pipe
 
-// Add a transformation to the end of the pipe
+// Skip a given number of items from the input pipe. After that number has been
+// dropped, the rest are passed straight through.
 func (p *Pipe) Skip(num int64) *Pipe {
 	p.addStage()
 	go p.skipperHandler(num, p.length-1)()

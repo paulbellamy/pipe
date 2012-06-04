@@ -12,7 +12,7 @@ type Filter interface {
 // A function which filters
 type FilterFunc func(item interface{}) bool
 
-// Add a transformation to the end of the pipe
+// Only pass through items when the filter returns true
 func (p *Pipe) FilterFunc(fn FilterFunc) *Pipe {
 	p.addStage()
 	go p.filterHandler(fn, p.length-1)()
@@ -20,7 +20,7 @@ func (p *Pipe) FilterFunc(fn FilterFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Only pass through items when the filter returns true
 func (p *Pipe) Filter(t Filter) *Pipe {
 	p.FilterFunc(func(item interface{}) bool {
 		return t.Filter(item)

@@ -4,7 +4,9 @@
 
 package pipe
 
-// Add a transformation to the end of the pipe
+// Accept only the given number of items from the input pipe. After that number
+// has been received, all input messages will be ignored and the output channel
+// will be closed.
 func (p *Pipe) Take(num int64) *Pipe {
 	p.addStage()
 	go p.takerHandler(num, p.length-1)()

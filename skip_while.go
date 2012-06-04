@@ -12,7 +12,8 @@ type SkipWhiler interface {
 // A function which skipwhiles
 type SkipWhileFunc func(item interface{}) bool
 
-// Add a transformation to the end of the pipe
+// Skip the items from the input pipe until the given function returns true.
+// After that , the rest are passed straight through.
 func (p *Pipe) SkipWhileFunc(fn SkipWhileFunc) *Pipe {
 	p.addStage()
 	go p.skipwhileHandler(fn, p.length-1)()
@@ -20,7 +21,8 @@ func (p *Pipe) SkipWhileFunc(fn SkipWhileFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Skip the items from the input pipe until the given function returns true.
+// After that , the rest are passed straight through.
 func (p *Pipe) SkipWhile(t SkipWhiler) *Pipe {
 	p.SkipWhileFunc(func(item interface{}) bool {
 		return t.SkipWhile(item)

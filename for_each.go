@@ -12,7 +12,7 @@ type ForEacher interface {
 // A function which foreachs
 type ForEachFunc func(item interface{})
 
-// Add a transformation to the end of the pipe
+// Execute a function for each item (without modifying the item)
 func (p *Pipe) ForEachFunc(fn ForEachFunc) *Pipe {
 	p.addStage()
 	go p.foreachHandler(fn, p.length-1)()
@@ -20,7 +20,7 @@ func (p *Pipe) ForEachFunc(fn ForEachFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Execute a function for each item (without modifying the item)
 func (p *Pipe) ForEach(t ForEacher) *Pipe {
 	p.ForEachFunc(func(item interface{}) {
 		t.ForEach(item)

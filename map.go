@@ -12,7 +12,7 @@ type Mapper interface {
 // A function which mappers
 type MapFunc func(item interface{}) interface{}
 
-// Add a transformation to the end of the pipe
+// Pass through the result of the map function for each item
 func (p *Pipe) MapFunc(fn MapFunc) *Pipe {
 	p.addStage()
 	go p.mapperHandler(fn, p.length-1)()
@@ -20,7 +20,7 @@ func (p *Pipe) MapFunc(fn MapFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Pass through the result of the map function for each item
 func (p *Pipe) Map(t Mapper) *Pipe {
 	p.MapFunc(func(item interface{}) interface{} {
 		return t.Map(item)

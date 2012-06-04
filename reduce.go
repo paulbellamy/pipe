@@ -12,7 +12,8 @@ type Reducer interface {
 // A function which reduces
 type ReduceFunc func(result, item interface{}) interface{}
 
-// Add a transformation to the end of the pipe
+// Accumulate the result of the reduce function being called on each item, then
+// when the input channel is closed, pass the result to the output channel
 func (p *Pipe) ReduceFunc(initial interface{}, fn ReduceFunc) *Pipe {
 	p.addStage()
 	go p.reducerHandler(initial, fn, p.length-1)()
@@ -20,7 +21,12 @@ func (p *Pipe) ReduceFunc(initial interface{}, fn ReduceFunc) *Pipe {
 	return p
 }
 
-// Add a transformation to the end of the pipe
+// Accumulate the result of the reduce function being called on each item, then
+// when the input channel is closed, pass the result to the output channel
+//
+// Unlike ReduceFunc, Reduce assumes that the class implementing the Reducer
+// interface keeps track of it's own storage, so the current result is not
+// passed in with each item.
 func (p *Pipe) Reduce(t Reducer) *Pipe {
 	p.addStage()
 	var pos int = p.length - 1
