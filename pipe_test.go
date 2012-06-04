@@ -8,11 +8,28 @@ import (
   "testing"
 )
 
-type CountTransformer struct {
+type Counter struct {
   count int
 }
 
-func (t *CountTransformer) Transform(item interface{}) interface{} {
+// Only let even numbers through
+func (t *Counter) Filter(item interface{}) bool {
+  return (item.(int) % 2) == 0
+}
+
+// Counts each item as it goes through
+func (t *Counter) ForEach(item interface{}) {
+  t.count++
+}
+
+// returns the index of each element
+func (t *Counter) Map(item interface{}) interface{} {
+  t.count++
+  return t.count
+}
+
+// returns the last t.count when the pipe closes
+func (t *Counter) Reduce(item interface{}) interface{} {
   t.count++
   return t.count
 }
@@ -20,67 +37,75 @@ func (t *CountTransformer) Transform(item interface{}) interface{} {
 func TestNullPipe(t *testing.T) {
   in := make(chan interface{})
   out := make(chan interface{})
-  pipe := NewPipe(in, out)
+  NewPipe(in, out)
 
   in <- 5
   if result := <-out; result != 5 {
     t.Fatal("Null pipe received: 5 but output ",result)
   }
 
-  pipe.AddFunc(func(item interface{}) interface{} {
-    return item.(int) + 5
-  })
+  close(in)
 }
 
-func TestSinglePipe(t *testing.T) {
+func TestFilterPipe(t *testing.T) {
   in := make(chan interface{})
   out := make(chan interface{})
   pipe := NewPipe(in, out)
-  pipe.AddFunc(func(item interface{}) interface{} {
-    return item.(int) + 5
+  pipe.FilterFunc(func(item interface{}) bool  {
+    return (item.(int) % 2) == 0
   })
 
-  in <- 5
-  if result := <-out; result != 10 {
-    t.Fatal("+5 pipe received: 5 but output ",result)
+  in <- 7
+  in <- 4
+  if result := <-out; result != 4 {
+    t.Fatal("even pipe received 7 and 4 but output ",result)
   }
+
+  close(in)
 }
 
 func TestMultiPipe(t *testing.T) {
   in := make(chan interface{})
   out := make(chan interface{})
   pipe := NewPipe(in, out)
-  pipe.AddFunc(func(item interface{}) interface{} {
-    return item.(int) + 5
+  pipe.FilterFunc(func(item interface{}) bool {
+    return (item.(int) % 5) == 0
   })
-  pipe.AddFunc(func(item interface{}) interface{} {
-    return item.(int) * 2
+  pipe.FilterFunc(func(item interface{}) bool {
+    return (item.(int) % 2) == 0
   })
 
+  in <- 2
   in <- 5
-  if result := <-out; result != 20 {
-    t.Fatal("(x+5)*2 pipe received: 5 but output ",result)
+  in <- 10
+  if result := <-out; result != 10 {
+    t.Fatal("mod 2 and mod 5 pipe received 2, 5 and 10 but output ",result)
   }
+
+  close(in)
 }
 
-func TestObjectPipe(t *testing.T) {
+func TestObjectFilterPipe(t *testing.T) {
   in := make(chan interface{}, 10)
   out := make(chan interface{}, 10)
   pipe := NewPipe(in, out)
-  pipe.Add(&CountTransformer{})
+  pipe.Filter(&Counter{})
 
+  // Push in some numbers
   for i := 0; i < 5; i++ {
-    in <- 0
+    in <- i
   }
-  // find the last item
+
+  // Check only evens came out
   var result interface{}
-  for i := 0; i < 5; i++ {
+  for i := 0; i < 5; i += 2 {
     result = <-out
+    if result.(int) != i {
+      t.Fatal("even object pipe let slip ",result.(int))
+    }
   }
 
-  if result.(int) != 5 {
-    t.Fatal("counting pipe received 5 elements but last output was ",result.(int))
-  }
+  close(in)
 }
 
 func TestClosingPipe(t *testing.T) {

@@ -5,11 +5,11 @@
 package pipe
 
 // Implement this interface in your object to pass it to Pipe.Add
-type Transformer interface {
-  Transform(item interface{}) interface{}
+type Filter interface {
+  Filter(item interface{}) bool
 }
 
-type transformer func(in interface{}) interface{}
+type FilterFunc func(item interface{}) bool
 
 // A Pipe is a set of transforms being applied along the channel
 type Pipe struct {
@@ -28,26 +28,31 @@ func NewPipe(in, out chan interface{}) *Pipe {
 	}
 
 	// Add the null handler (just echoes in to output)
-	pipe.AddFunc(func(item interface{}) interface{} {
-		return item
+	pipe.FilterFunc(func(item interface{}) bool {
+		return true
 	})
 
 	return pipe
 }
 
-// Add a transformation to the end of the pipe
-func (p *Pipe) AddFunc(fn transformer) {
+// Create a new channel
+func (p *Pipe) addStage() (chan interface{}) {
 	p.length++
-	for i := 0; i < p.length; i++ {
-		p.inputs = append(p.inputs, make(chan interface{}))
-	}
-	go p.handler(fn, p.length-1)()
+  c := make(chan interface{})
+  p.inputs = append(p.inputs, c)
+  return c
 }
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Add(t Transformer) {
-  p.AddFunc(func(item interface{}) interface{} {
-    return t.Transform(item)
+func (p *Pipe) FilterFunc(fn FilterFunc) {
+  p.addStage()
+	go p.filterHandler(fn, p.length-1)()
+}
+
+// Add a transformation to the end of the pipe
+func (p *Pipe) Filter(t Filter) {
+  p.FilterFunc(func(item interface{}) bool {
+    return t.Filter(item)
   })
 }
 
@@ -62,17 +67,18 @@ func (p *Pipe) nextChan(pos int) chan interface{} {
 	return p.inputs[pos+1]
 }
 
-func (p *Pipe) handler(fn transformer, pos int) func() {
+func (p *Pipe) filterHandler(fn FilterFunc, pos int) func() {
 	return func() {
-		for {
-			item, ok := <-p.prevChan(pos)
-			if !ok {
-				// channel closed cascade the close
-				close(p.nextChan(pos))
-				return
-			}
+    for {
+      item, ok := <-p.prevChan(pos)
+      if (!ok) {
+        break
+      }
 
-			p.nextChan(pos) <- fn(item)
+      if fn(item) {
+        p.nextChan(pos) <- item
+      }
 		}
+    close(p.nextChan(pos))
 	}
 }
