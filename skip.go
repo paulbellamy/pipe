@@ -5,9 +5,11 @@
 package pipe
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Skip(num int64) {
+func (p *Pipe) Skip(num int64) *Pipe {
 	p.addStage()
 	go p.skipperHandler(num, p.length-1)()
+
+	return p
 }
 
 func (p *Pipe) skipperHandler(num int64, pos int) func() {

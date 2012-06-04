@@ -13,13 +13,15 @@ type Reducer interface {
 type ReduceFunc func(result, item interface{}) interface{}
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) ReduceFunc(initial interface{}, fn ReduceFunc) {
+func (p *Pipe) ReduceFunc(initial interface{}, fn ReduceFunc) *Pipe {
 	p.addStage()
 	go p.reducerHandler(initial, fn, p.length-1)()
+
+	return p
 }
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Reduce(t Reducer) {
+func (p *Pipe) Reduce(t Reducer) *Pipe {
 	p.addStage()
 	var pos int = p.length - 1
 	var result interface{}
@@ -36,6 +38,8 @@ func (p *Pipe) Reduce(t Reducer) {
 		p.nextChan(pos) <- result
 		close(p.nextChan(pos))
 	}()
+
+	return p
 }
 
 func (p *Pipe) reducerHandler(initial interface{}, fn ReduceFunc, pos int) func() {

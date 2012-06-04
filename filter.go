@@ -13,16 +13,20 @@ type Filter interface {
 type FilterFunc func(item interface{}) bool
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) FilterFunc(fn FilterFunc) {
+func (p *Pipe) FilterFunc(fn FilterFunc) *Pipe {
 	p.addStage()
 	go p.filterHandler(fn, p.length-1)()
+
+	return p
 }
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Filter(t Filter) {
+func (p *Pipe) Filter(t Filter) *Pipe {
 	p.FilterFunc(func(item interface{}) bool {
 		return t.Filter(item)
 	})
+
+	return p
 }
 
 func (p *Pipe) filterHandler(fn FilterFunc, pos int) func() {

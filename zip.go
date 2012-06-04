@@ -5,9 +5,11 @@
 package pipe
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Zip(other chan interface{}) {
+func (p *Pipe) Zip(other chan interface{}) *Pipe {
 	p.addStage()
 	go p.zipperHandler(other, p.length-1)()
+
+	return p
 }
 
 func (p *Pipe) zipperHandler(other chan interface{}, pos int) func() {

@@ -13,16 +13,20 @@ type ForEacher interface {
 type ForEachFunc func(item interface{})
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) ForEachFunc(fn ForEachFunc) {
+func (p *Pipe) ForEachFunc(fn ForEachFunc) *Pipe {
 	p.addStage()
 	go p.foreachHandler(fn, p.length-1)()
+
+	return p
 }
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) ForEach(t ForEacher) {
+func (p *Pipe) ForEach(t ForEacher) *Pipe {
 	p.ForEachFunc(func(item interface{}) {
 		t.ForEach(item)
 	})
+
+	return p
 }
 
 func (p *Pipe) foreachHandler(fn ForEachFunc, pos int) func() {

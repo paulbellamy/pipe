@@ -5,9 +5,11 @@
 package pipe
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) Take(num int64) {
+func (p *Pipe) Take(num int64) *Pipe {
 	p.addStage()
 	go p.takerHandler(num, p.length-1)()
+
+	return p
 }
 
 func (p *Pipe) takerHandler(num int64, pos int) func() {

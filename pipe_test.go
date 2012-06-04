@@ -43,8 +43,7 @@ func TestMultiPipe(t *testing.T) {
 	pipe := NewPipe(in, out)
 	pipe.FilterFunc(func(item interface{}) bool {
 		return (item.(int) % 5) == 0
-	})
-	pipe.FilterFunc(func(item interface{}) bool {
+	}).FilterFunc(func(item interface{}) bool {
 		return (item.(int) % 2) == 0
 	})
 
