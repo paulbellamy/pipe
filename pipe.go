@@ -4,13 +4,6 @@
 
 package pipe
 
-// Implement this interface in your object to pass it to Pipe.Add
-type Filter interface {
-  Filter(item interface{}) bool
-}
-
-type FilterFunc func(item interface{}) bool
-
 // A Pipe is a set of transforms being applied along the channel
 type Pipe struct {
 	length     int
@@ -43,19 +36,6 @@ func (p *Pipe) addStage() (chan interface{}) {
   return c
 }
 
-// Add a transformation to the end of the pipe
-func (p *Pipe) FilterFunc(fn FilterFunc) {
-  p.addStage()
-	go p.filterHandler(fn, p.length-1)()
-}
-
-// Add a transformation to the end of the pipe
-func (p *Pipe) Filter(t Filter) {
-  p.FilterFunc(func(item interface{}) bool {
-    return t.Filter(item)
-  })
-}
-
 func (p *Pipe) prevChan(pos int) chan interface{} {
 	return p.inputs[pos]
 }
@@ -65,20 +45,4 @@ func (p *Pipe) nextChan(pos int) chan interface{} {
 		return p.output
 	}
 	return p.inputs[pos+1]
-}
-
-func (p *Pipe) filterHandler(fn FilterFunc, pos int) func() {
-	return func() {
-    for {
-      item, ok := <-p.prevChan(pos)
-      if (!ok) {
-        break
-      }
-
-      if fn(item) {
-        p.nextChan(pos) <- item
-      }
-		}
-    close(p.nextChan(pos))
-	}
 }
