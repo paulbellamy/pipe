@@ -21,8 +21,7 @@ func (t *FakeReducer) Reduce(item interface{}) interface{} {
 func TestReduceFuncPipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
-	pipe.ReduceFunc(0, func(sum, item interface{}) interface{} {
+	NewPipe(in, out).ReduceFunc(0, func(sum, item interface{}) interface{} {
 		return sum.(int) + item.(int)
 	})
 
@@ -44,8 +43,7 @@ func TestReduceFuncPipe(t *testing.T) {
 func TestReducePipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
-	pipe.Reduce(&FakeReducer{})
+	NewPipe(in, out).Reduce(&FakeReducer{})
 
 	// Push in some numbers
 	for i := 5; i > 0; i-- {

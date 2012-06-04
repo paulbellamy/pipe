@@ -20,8 +20,7 @@ func (t *FakeFilter) Filter(item interface{}) bool {
 func TestFilterFuncPipe(t *testing.T) {
 	in := make(chan interface{})
 	out := make(chan interface{})
-	pipe := NewPipe(in, out)
-	pipe.FilterFunc(func(item interface{}) bool {
+	NewPipe(in, out).FilterFunc(func(item interface{}) bool {
 		return (item.(int) % 2) == 0
 	})
 
@@ -37,8 +36,7 @@ func TestFilterFuncPipe(t *testing.T) {
 func TestFilterPipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
-	pipe.Filter(&FakeFilter{})
+	NewPipe(in, out).Filter(&FakeFilter{})
 
 	// Push in some numbers
 	for i := 0; i < 5; i++ {

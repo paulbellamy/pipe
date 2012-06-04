@@ -11,8 +11,7 @@ import (
 func TestSkipPipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
-	pipe.Skip(3)
+	NewPipe(in, out).Skip(3)
 
 	for i := 0; i < 5; i++ {
 		in <- i

@@ -11,8 +11,7 @@ import (
 func TestTakePipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
-	pipe.Take(3)
+	NewPipe(in, out).Take(3)
 
 	for i := 0; i < 5; i++ {
 		in <- i

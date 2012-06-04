@@ -20,9 +20,8 @@ func (t *FakeTakeWhiler) TakeWhile(item interface{}) bool {
 func TestTakeWhileFuncPipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
 	take := true
-	pipe.TakeWhileFunc(func(item interface{}) bool {
+	NewPipe(in, out).TakeWhileFunc(func(item interface{}) bool {
 		return take
 	})
 
@@ -43,9 +42,8 @@ func TestTakeWhileFuncPipe(t *testing.T) {
 func TestTakeWhilePipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
 	taker := &FakeTakeWhiler{}
-	pipe.TakeWhile(taker)
+	NewPipe(in, out).TakeWhile(taker)
 
 	// Push in some numbers
 	in <- 1

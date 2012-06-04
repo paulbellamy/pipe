@@ -40,8 +40,7 @@ func TestNullPipe(t *testing.T) {
 func TestMultiPipe(t *testing.T) {
 	in := make(chan interface{})
 	out := make(chan interface{})
-	pipe := NewPipe(in, out)
-	pipe.FilterFunc(func(item interface{}) bool {
+	NewPipe(in, out).FilterFunc(func(item interface{}) bool {
 		return (item.(int) % 5) == 0
 	}).FilterFunc(func(item interface{}) bool {
 		return (item.(int) % 2) == 0

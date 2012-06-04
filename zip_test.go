@@ -12,8 +12,7 @@ func TestZipPipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
 	other := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
-	pipe.Zip(other)
+	NewPipe(in, out).Zip(other)
 
 	in <- 5
 	in <- 10

@@ -20,9 +20,8 @@ func (t *FakeForEacher) ForEach(item interface{}) {
 func TestForEachFuncPipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
 	count := 0
-	pipe.ForEachFunc(func(item interface{}) {
+	NewPipe(in, out).ForEachFunc(func(item interface{}) {
 		count++
 	})
 
@@ -48,9 +47,8 @@ func TestForEachFuncPipe(t *testing.T) {
 func TestForEachPipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
 	counter := &FakeForEacher{}
-	pipe.ForEach(counter)
+	NewPipe(in, out).ForEach(counter)
 
 	// Push in some numbers
 	for i := 0; i < 5; i++ {

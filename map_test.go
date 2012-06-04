@@ -21,9 +21,8 @@ func (t *FakeMapper) Map(item interface{}) interface{} {
 func TestMapFuncPipe(t *testing.T) {
 	in := make(chan interface{}, 5)
 	out := make(chan interface{}, 5)
-	pipe := NewPipe(in, out)
 	count := 0
-	pipe.MapFunc(func(item interface{}) interface{} {
+	NewPipe(in, out).MapFunc(func(item interface{}) interface{} {
 		count++
 		return count
 	})
@@ -43,8 +42,7 @@ func TestMapFuncPipe(t *testing.T) {
 func TestMapPipe(t *testing.T) {
 	in := make(chan interface{}, 10)
 	out := make(chan interface{}, 10)
-	pipe := NewPipe(in, out)
-	pipe.Map(&FakeMapper{})
+	NewPipe(in, out).Map(&FakeMapper{})
 
 	// Push in some numbers
 	for i := 5; i > 0; i-- {

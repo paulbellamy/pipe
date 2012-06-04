@@ -13,16 +13,20 @@ type TakeWhiler interface {
 type TakeWhileFunc func(item interface{}) bool
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) TakeWhileFunc(fn TakeWhileFunc) {
+func (p *Pipe) TakeWhileFunc(fn TakeWhileFunc) *Pipe {
 	p.addStage()
 	go p.takewhileHandler(fn, p.length-1)()
+
+	return p
 }
 
 // Add a transformation to the end of the pipe
-func (p *Pipe) TakeWhile(t TakeWhiler) {
+func (p *Pipe) TakeWhile(t TakeWhiler) *Pipe {
 	p.TakeWhileFunc(func(item interface{}) bool {
 		return t.TakeWhile(item)
 	})
+
+	return p
 }
 
 func (p *Pipe) takewhileHandler(fn TakeWhileFunc, pos int) func() {
