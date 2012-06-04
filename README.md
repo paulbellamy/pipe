@@ -16,57 +16,82 @@ After that there are several chaining methods to build up the processing. Once t
 
 Be careful, because some of the transformations (e.g. Reduce, Skip) result in channels which are 'leaky'. Meaning that one item in may not equal one item out.
 
+For example, to count the number of items passing through a channel:
+
+```Go
+// Define our counter
+type PipeCounter struct {
+  Count int
+}
+
+// tell it what to do with each item
+func (c *PipeCounter) ForEach(item interface{}) {
+  c.Count++ // increment the counter
+}
+
+// Set up our pipe
+input := make(chan interface{}, 5)
+output := make(chan interface{}, 5)
+pipe := NewPipe(input, output)
+
+// Add our counter
+counter := &PipeCounter{}
+pipe.ForEach(counter)
+
+// Now we send some items
+input <- true
+input <- true
+input <- true
+
+// Check how many have gone through
+fmt.Println(counter.Count) // prints "3"
+```
+
+  You can, of course, modify the items flowing through the pipe:
+
+```Go
+// Set up our pipe
+input := make(chan interface{}, 5)
+output := make(chan interface{}, 5)
+
+NewPipe(input, output).Filter(func(item interface{}) bool {
+  // Only allow ints divisible by 5
+  return (item.(int) % 5) == 0
+}).Map(func(item interface{}) interface{} {
+  // Add 2 to each
+  return item.(int) + 2
+}
+
+// Now we send some items
+input <- 1 // will be dropped
+input <- 5 // will come through as 7
+```
+
+## Available Transformations
+
+Some transformations have 2 variants, the object interface variant, and the functional variant. The functional variants (which take a function, instead of an object) end in the work 'Func'. Other transformations, like Skip, Take, and Zip, take a special input (not an object or function).
+
+In general, the object passed to transformations must implement a method with the same name as the transformation and the signature of the functional variant. For example, the object passed to 'Filter' should implement ```func (o *Object) Filter(item interface{}) bool```.
+
+* Filter(obj Filter)
+* FilterFunc(func(item interface{}) bool)
+* ForEach(obj ForEacher)
+* ForEachFunc(func(item interface{}))
+* Map(obj Mapper)
+* MapFunc(func(item interface{}) interface{})
+* Reduce(obj Reducer)
+* ReduceFunc(initial interface{}, func(accumulator interface{}, item interface{}) interface{})
+* Skip(n int64)
+* SkipWhile(obj SkipWhiler)
+* SkipWhileFunc(func(item interface{}) bool)
+* Take(n int64)
+* TakeWhile(obj TakeWhiler)
+* TakeWhileFunc(func(item interface{}) bool)
+* Zip(other chan interface{})
+
 ## Godoc
 
 ```
-package pipe
-    import "/Users/paulbellamy/Projects/Current/pipe"
-
-    Package pipe provides concurrent and (relatively) transparent
-    transformations along Golang channels.
-
-    For example, to count the number of items passing through a channel:
-
-	// Define our counter
-	type PipeCounter struct {
-	  Count int
-	}
-	// tell it what to do with each item
-	func (c *PipeCounter) ForEach(item interface{}) {
-	  c.Count++ // increment the counter
-	}
-	// Set up our pipe
-	input := make(chan interface{}, 5)
-	output := make(chan interface{}, 5)
-	pipe := NewPipe(input, output)
-	// Add our counter
-	counter := &PipeCounter{}
-	pipe.ForEach(counter)
-	// Now we send some items
-	input <- true
-	input <- true
-	input <- true
-	// Check how many have gone through
-	fmt.Println(counter.Count) // prints "3"
-
-    You can, of course, modify the items flowing through the pipe:
-
-	// Set up our pipe
-	input := make(chan interface{}, 5)
-	output := make(chan interface{}, 5)
-	NewPipe(input, output).Filter(func(item interface{}) bool {
-	  // Only allow ints divisible by 5
-	  return (item.(int) % 5) == 0
-	}).Map(func(item interface{}) interface{} {
-	  // Add 2 to each
-	  return item.(int) + 2
-	}
-	// Now we send some items
-	input <- 1 // will be dropped
-	input <- 5 // will come through as 7
-
-TYPES
-
 type Filter interface {
     Filter(item interface{}) bool
 }
