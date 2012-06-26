@@ -9,23 +9,16 @@ along Golang channels.
 For example, to count the number of items passing through a channel:
 
   // Define our counter
-  type PipeCounter struct {
-    Count int
-  }
-
-  // tell it what to do with each item
-  func (c *PipeCounter) ForEach(item interface{}) {
-    c.Count++ // increment the counter
+  var counter int
+  counter_func := func(item interface{}) {
+    counter++ // increment the counter for each item
   }
 
   // Set up our pipe
   input := make(chan interface{}, 5)
-  output := make(chan interface{}, 5)
-  pipe := NewPipe(input, output)
 
   // Add our counter
-  counter := &PipeCounter{}
-  pipe.ForEach(counter)
+  output := ForEach(counter_func, input)
 
   // Now we send some items
   input <- true
@@ -33,21 +26,45 @@ For example, to count the number of items passing through a channel:
   input <- true
 
   // Check how many have gone through
-  fmt.Println(counter.Count) // prints "3"
+  fmt.Println(counter) // prints "3"
 
 You can, of course, modify the items flowing through the pipe:
 
   // Set up our pipe
   input := make(chan interface{}, 5)
-  output := make(chan interface{}, 5)
 
-  NewPipe(input, output).Filter(func(item interface{}) bool {
-    // Only allow ints divisible by 5
-    return (item.(int) % 5) == 0
-  }).Map(func(item interface{}) interface{} {
+  map_func := func(item interface{}) interface{} {
     // Add 2 to each
     return item.(int) + 2
-  })
+  }
+
+  filter_func := func(item interface{}) bool {
+    // Only allow ints divisible by 5
+    return (item.(int) % 5) == 0
+  }
+
+  output := Map(map_func, Filter(filter_func, input))
+
+  // Now we send some items
+  input <- 1 // will be dropped
+  input <- 5 // will come through as 7
+
+There is also a nicer syntax for building sequential pipes:
+
+  // Set up our pipe
+  input := make(chan interface{}, 5)
+
+  output := NewPipe(input, // Take items from 'input'
+    // Only allow items divisible by 5
+    Filter, func(item interface{}) bool {
+      return (item.(int) % 5) == 0
+    },
+
+    // Then add 2 to each item
+    Map, func(item interface{}) interface{} {
+      return item.(int) + 2
+    }
+  )
 
   // Now we send some items
   input <- 1 // will be dropped
