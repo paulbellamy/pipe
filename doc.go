@@ -47,7 +47,7 @@ You can, of course, modify the items flowing through the pipe:
   }).Map(func(item interface{}) interface{} {
     // Add 2 to each
     return item.(int) + 2
-  }
+  })
 
   // Now we send some items
   input <- 1 // will be dropped

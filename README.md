@@ -60,7 +60,7 @@ NewPipe(input, output).Filter(func(item interface{}) bool {
 }).Map(func(item interface{}) interface{} {
   // Add 2 to each
   return item.(int) + 2
-}
+})
 
 // Now we send some items
 input <- 1 // will be dropped
