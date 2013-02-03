@@ -8,18 +8,9 @@ import (
 	"testing"
 )
 
-type FakeSkipWhiler struct {
-}
-
-// returns the index of each element
-func (t *FakeSkipWhiler) SkipWhile(item interface{}) bool {
-	return item.(int) < 3
-}
-
-func TestSkipWhileFuncPipe(t *testing.T) {
+func TestSkipWhilePipe(t *testing.T) {
 	in := make(chan interface{}, 5)
-	out := make(chan interface{}, 5)
-	NewPipe(in, out).SkipWhileFunc(func(item interface{}) bool {
+	out := SkipWhile(in, func(item interface{}) bool {
 		return item.(int) < 3
 	})
 
@@ -35,11 +26,13 @@ func TestSkipWhileFuncPipe(t *testing.T) {
 	close(in)
 }
 
-func TestSkipWhilePipe(t *testing.T) {
+func TestSkipWhileChainedConstructor(t *testing.T) {
 	in := make(chan interface{}, 10)
-	out := make(chan interface{}, 10)
-	skipper := &FakeSkipWhiler{}
-	NewPipe(in, out).SkipWhile(skipper)
+	out := NewPipe(in).
+		SkipWhile(func(item interface{}) bool {
+		return item.(int) < 3
+	}).
+		Output
 
 	// Push in some numbers
 	in <- 1

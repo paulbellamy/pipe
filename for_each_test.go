@@ -8,20 +8,11 @@ import (
 	"testing"
 )
 
-type FakeForEacher struct {
-	count int
-}
-
-// Counts each item as it goes through
-func (t *FakeForEacher) ForEach(item interface{}) {
-	t.count++
-}
-
-func TestForEachFuncPipe(t *testing.T) {
-	in := make(chan interface{}, 5)
-	out := make(chan interface{}, 5)
+func TestForEach(t *testing.T) {
 	count := 0
-	NewPipe(in, out).ForEachFunc(func(item interface{}) {
+
+	in := make(chan interface{}, 5)
+	out := ForEach(in, func(item interface{}) {
 		count++
 	})
 
@@ -44,11 +35,14 @@ func TestForEachFuncPipe(t *testing.T) {
 	close(in)
 }
 
-func TestForEachPipe(t *testing.T) {
+func TestForEachChainedConstructor(t *testing.T) {
+	count := 0
 	in := make(chan interface{}, 10)
-	out := make(chan interface{}, 10)
-	counter := &FakeForEacher{}
-	NewPipe(in, out).ForEach(counter)
+	out := NewPipe(in).
+		ForEach(func(item interface{}) {
+		count++
+	}).
+		Output
 
 	// Push in some numbers
 	for i := 0; i < 5; i++ {
@@ -64,8 +58,8 @@ func TestForEachPipe(t *testing.T) {
 		}
 	}
 
-	if counter.count != 5 {
-		t.Fatal("ForEachPipe miscounted ", 5, " elements as ", counter.count)
+	if count != 5 {
+		t.Fatal("ForEachPipe miscounted ", 5, " elements as ", count)
 	}
 
 	close(in)

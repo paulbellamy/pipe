@@ -6,35 +6,36 @@ package pipe
 
 // Skip a given number of items from the input pipe. After that number has been
 // dropped, the rest are passed straight through.
-func (p *Pipe) Skip(num int64) *Pipe {
-	p.addStage()
-	go p.skipperHandler(num, p.length-1)()
-
-	return p
-}
-
-func (p *Pipe) skipperHandler(num int64, pos int) func() {
+func Skip(input chan interface{}, num int64) chan interface{} {
+	output := make(chan interface{})
 	var count int64
-	return func() {
+	go func() {
 		// skip num items
 		for count = 0; count < num; count++ {
-			_, ok := <-p.prevChan(pos)
+			_, ok := <-input
 			if !ok {
 				// channel closed early
-				close(p.nextChan(pos))
+				close(output)
 				return
 			}
 		}
 
 		// Return the rest
 		for {
-			item, ok := <-p.prevChan(pos)
+			item, ok := <-input
 			if !ok {
 				break
 			}
 
-			p.nextChan(pos) <- item
+			output <- item
 		}
-		close(p.nextChan(pos))
-	}
+		close(output)
+	}()
+	return output
+}
+
+// Helper for chained constructor
+func (p *Pipe) Skip(num int64) *Pipe {
+	p.Output = Skip(p.Output, num)
+	return p
 }

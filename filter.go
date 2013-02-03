@@ -4,9 +4,11 @@
 
 package pipe
 
+type FilterFunc func(item interface{}) bool
+
 // Apply a filtering function to a channel, which will only pass through items
 // when the filter func returns true.
-func Filter(fn func(item interface{}) bool, input chan interface{}) chan interface{} {
+func Filter(input chan interface{}, fn FilterFunc) chan interface{} {
 	output := make(chan interface{})
 	go func() {
 		for {
@@ -22,4 +24,10 @@ func Filter(fn func(item interface{}) bool, input chan interface{}) chan interfa
 		close(output)
 	}()
 	return output
+}
+
+// Helper for chained construction
+func (p *Pipe) Filter(fn FilterFunc) *Pipe {
+	p.Output = Filter(p.Output, fn)
+	return p
 }

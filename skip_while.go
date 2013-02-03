@@ -4,61 +4,46 @@
 
 package pipe
 
-// Implement this interface in your object to pass it to Pipe.SkipWhile
-type SkipWhiler interface {
-	SkipWhile(item interface{}) bool
-}
-
-// A function which skipwhiles
 type SkipWhileFunc func(item interface{}) bool
 
 // Skip the items from the input pipe until the given function returns true.
 // After that , the rest are passed straight through.
-func (p *Pipe) SkipWhileFunc(fn SkipWhileFunc) *Pipe {
-	p.addStage()
-	go p.skipwhileHandler(fn, p.length-1)()
-
-	return p
-}
-
-// Skip the items from the input pipe until the given function returns true.
-// After that , the rest are passed straight through.
-func (p *Pipe) SkipWhile(t SkipWhiler) *Pipe {
-	p.SkipWhileFunc(func(item interface{}) bool {
-		return t.SkipWhile(item)
-	})
-
-	return p
-}
-
-func (p *Pipe) skipwhileHandler(fn SkipWhileFunc, pos int) func() {
-	return func() {
+func SkipWhile(input chan interface{}, fn SkipWhileFunc) chan interface{} {
+	output := make(chan interface{})
+	go func() {
 		for {
-			item, ok := <-p.prevChan(pos)
+			item, ok := <-input
 			if !ok {
 				// input closed, abort
-				close(p.nextChan(pos))
+				close(output)
 				return
 			}
 
 			// check if we should output this
 			if !fn(item) {
-				p.nextChan(pos) <- item
+				output <- item
 				break
 			}
 		}
 
 		// send any messages after this
 		for {
-			item, ok := <-p.prevChan(pos)
+			item, ok := <-input
 			if !ok {
 				break
 			}
 
-			p.nextChan(pos) <- item
+			output <- item
 		}
 
-		close(p.nextChan(pos))
+		close(output)
 
-	}
+	}()
+	return output
+}
+
+// Helper function for chained constructor
+func (p *Pipe) SkipWhile(fn SkipWhileFunc) *Pipe {
+	p.Output = SkipWhile(p.Output, fn)
+	return p
 }

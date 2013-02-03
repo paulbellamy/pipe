@@ -18,10 +18,9 @@ func (t *FakeReducer) Reduce(item interface{}) interface{} {
 	return t.sum
 }
 
-func TestReduceFuncPipe(t *testing.T) {
+func TestReducePipe(t *testing.T) {
 	in := make(chan interface{}, 5)
-	out := make(chan interface{}, 5)
-	NewPipe(in, out).ReduceFunc(0, func(sum, item interface{}) interface{} {
+	out := Reduce(in, 0, func(sum, item interface{}) interface{} {
 		return sum.(int) + item.(int)
 	})
 
@@ -40,10 +39,13 @@ func TestReduceFuncPipe(t *testing.T) {
 	}
 }
 
-func TestReducePipe(t *testing.T) {
+func TestReduceChainedConstructor(t *testing.T) {
 	in := make(chan interface{}, 10)
-	out := make(chan interface{}, 10)
-	NewPipe(in, out).Reduce(&FakeReducer{})
+	out := NewPipe(in).
+		Reduce(0, func(sum, item interface{}) interface{} {
+		return sum.(int) + item.(int)
+	}).
+		Output
 
 	// Push in some numbers
 	for i := 5; i > 0; i-- {

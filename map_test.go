@@ -8,28 +8,20 @@ import (
 	"testing"
 )
 
-type FakeMapper struct {
-	count int
-}
-
-// returns the index of each element
-func (t *FakeMapper) Map(item interface{}) interface{} {
-	t.count++
-	return t.count
-}
-
-func TestMapFuncPipe(t *testing.T) {
-	in := make(chan interface{}, 5)
-	out := make(chan interface{}, 5)
+func TestMapPipe(t *testing.T) {
 	count := 0
-	NewPipe(in, out).MapFunc(func(item interface{}) interface{} {
+	counter := func(item interface{}) interface{} {
 		count++
 		return count
-	})
+	}
+	in := make(chan interface{}, 5)
+	out := Map(in, counter)
 
-	in <- 7
-	in <- 4
-	in <- 5
+	go func() {
+		in <- 7
+		in <- 4
+		in <- 5
+	}()
 	for i := 1; i <= 3; i++ {
 		if result := <-out; result.(int) != i {
 			t.Fatal("mapping pipe received ", i, " items but output ", result.(int))
@@ -39,10 +31,14 @@ func TestMapFuncPipe(t *testing.T) {
 	close(in)
 }
 
-func TestMapPipe(t *testing.T) {
+func TestMapChainedConstructor(t *testing.T) {
+	count := 0
+	counter := func(item interface{}) interface{} {
+		count++
+		return count
+	}
 	in := make(chan interface{}, 10)
-	out := make(chan interface{}, 10)
-	NewPipe(in, out).Map(&FakeMapper{})
+	out := NewPipe(in).Map(counter).Output
 
 	// Push in some numbers
 	for i := 5; i > 0; i-- {

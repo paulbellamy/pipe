@@ -13,21 +13,14 @@ package pipe
 //
 //   a <- 1
 //   b <- 2
-//   result := <-c
+//   result := <-c // result will equal []interface{}{1, 2}
 //
-// Here, result will equal []interface{}{1, 2}
-func (p *Pipe) Zip(other chan interface{}) *Pipe {
-	p.addStage()
-	go p.zipperHandler(other, p.length-1)()
-
-	return p
-}
-
-func (p *Pipe) zipperHandler(other chan interface{}, pos int) func() {
-	return func() {
+func Zip(input chan interface{}, other chan interface{}) chan interface{} {
+	output := make(chan interface{})
+	go func() {
 		// only send num items
 		for {
-			a, ok := <-p.prevChan(pos)
+			a, ok := <-input
 			if !ok {
 				break
 			}
@@ -37,9 +30,16 @@ func (p *Pipe) zipperHandler(other chan interface{}, pos int) func() {
 				break
 			}
 
-			p.nextChan(pos) <- []interface{}{a, b}
+			output <- []interface{}{a, b}
 		}
 
-		close(p.nextChan(pos))
-	}
+		close(output)
+	}()
+	return output
+}
+
+// Helper for the chained constructor
+func (p *Pipe) Zip(other chan interface{}) *Pipe {
+	p.Output = Zip(p.Output, other)
+	return p
 }

@@ -18,7 +18,7 @@ For example, to count the number of items passing through a channel:
   input := make(chan interface{}, 5)
 
   // Add our counter
-  output := ForEach(counter_func, input)
+  output := ForEach(input, counter_func)
 
   // Now we send some items
   input <- true
@@ -43,7 +43,8 @@ You can, of course, modify the items flowing through the pipe:
     return (item.(int) % 5) == 0
   }
 
-  output := Map(map_func, Filter(filter_func, input))
+  output := Filter(input, filter_func)
+  output = Map(output, map_func)
 
   // Now we send some items
   input <- 1 // will be dropped
@@ -54,17 +55,16 @@ There is also a nicer syntax for building sequential pipes:
   // Set up our pipe
   input := make(chan interface{}, 5)
 
-  output := NewPipe(input, // Take items from 'input'
-    // Only allow items divisible by 5
-    Filter, func(item interface{}) bool {
+  output := NewPipe(input). // Take items from 'input'
+    Filter(func(item interface{}) bool {
+      // Only allow items divisible by 5
       return (item.(int) % 5) == 0
-    },
-
-    // Then add 2 to each item
-    Map, func(item interface{}) interface{} {
+    }).
+    Map(func(item interface{}) interface{} {
+      // Then add 2 to each item
       return item.(int) + 2
-    }
-  )
+    }).
+    Output
 
   // Now we send some items
   input <- 1 // will be dropped

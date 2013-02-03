@@ -8,28 +8,13 @@ import (
 	"testing"
 )
 
-type Counter struct {
-	count int
-}
-
-// returns the index of each element
-func (t *Counter) Map(item interface{}) interface{} {
-	t.count++
-	return t.count
-}
-
-// returns the last t.count when the pipe closes
-func (t *Counter) Reduce(item interface{}) interface{} {
-	t.count++
-	return t.count
-}
-
 func TestNullPipe(t *testing.T) {
 	in := make(chan interface{})
-	out := make(chan interface{})
-	NewPipe(in, out)
+	out := NewPipe(in).Output
 
-	in <- 5
+	go func() {
+		in <- 5
+	}()
 	if result := <-out; result != 5 {
 		t.Fatal("Null pipe received: 5 but output ", result)
 	}
@@ -38,17 +23,23 @@ func TestNullPipe(t *testing.T) {
 }
 
 func TestMultiPipe(t *testing.T) {
+	mod := func(x int) func(item interface{}) bool {
+		return func(item interface{}) bool {
+			return (item.(int) % x) == 0
+		}
+	}
 	in := make(chan interface{})
-	out := make(chan interface{})
-	NewPipe(in, out).FilterFunc(func(item interface{}) bool {
-		return (item.(int) % 5) == 0
-	}).FilterFunc(func(item interface{}) bool {
-		return (item.(int) % 2) == 0
-	})
+	out := NewPipe(in).
+		Filter(mod(5)).
+		Filter(mod(2)).
+		Output
 
-	in <- 2
-	in <- 5
-	in <- 10
+	go func() {
+		in <- 2
+		in <- 5
+		in <- 10
+	}()
+
 	if result := <-out; result != 10 {
 		t.Fatal("mod 2 and mod 5 pipe received 2, 5 and 10 but output ", result)
 	}
@@ -58,8 +49,7 @@ func TestMultiPipe(t *testing.T) {
 
 func TestClosingPipe(t *testing.T) {
 	in := make(chan interface{})
-	out := make(chan interface{})
-	NewPipe(in, out)
+	out := NewPipe(in).Output
 
 	close(in)
 	if _, ok := <-out; ok {

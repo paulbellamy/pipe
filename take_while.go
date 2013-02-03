@@ -4,39 +4,16 @@
 
 package pipe
 
-// Implement this interface in your object to pass it to Pipe.TakeWhile
-type TakeWhiler interface {
-	TakeWhile(item interface{}) bool
-}
-
-// A function which takewhiles
 type TakeWhileFunc func(item interface{}) bool
 
 // Accept items from the input pipe until the given function returns false.
 // After that, all input messages will be ignored and the output channel will
 // be closed.
-func (p *Pipe) TakeWhileFunc(fn TakeWhileFunc) *Pipe {
-	p.addStage()
-	go p.takewhileHandler(fn, p.length-1)()
-
-	return p
-}
-
-// Accept items from the input pipe until the given function returns false.
-// After that, all input messages will be ignored and the output channel will
-// be closed.
-func (p *Pipe) TakeWhile(t TakeWhiler) *Pipe {
-	p.TakeWhileFunc(func(item interface{}) bool {
-		return t.TakeWhile(item)
-	})
-
-	return p
-}
-
-func (p *Pipe) takewhileHandler(fn TakeWhileFunc, pos int) func() {
-	return func() {
+func TakeWhile(input chan interface{}, fn TakeWhileFunc) chan interface{} {
+	output := make(chan interface{})
+	go func() {
 		for {
-			item, ok := <-p.prevChan(pos)
+			item, ok := <-input
 			if !ok {
 				break
 			}
@@ -46,18 +23,25 @@ func (p *Pipe) takewhileHandler(fn TakeWhileFunc, pos int) func() {
 				break
 			}
 
-			p.nextChan(pos) <- item
+			output <- item
 		}
 
 		// hit the toggle, close the channel
-		close(p.nextChan(pos))
+		close(output)
 
 		// drop any extra messages
 		for {
-			_, ok := <-p.prevChan(pos)
+			_, ok := <-input
 			if !ok {
 				break
 			}
 		}
-	}
+	}()
+	return output
+}
+
+// Helper for the chained constructor
+func (p *Pipe) TakeWhile(fn TakeWhileFunc) *Pipe {
+	p.Output = TakeWhile(p.Output, fn)
+	return p
 }
