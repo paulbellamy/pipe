@@ -9,29 +9,12 @@ import (
 )
 
 func TestFilter(t *testing.T) {
-	mod2 := func(item interface{}) bool {
-		return (item.(int) % 2) == 0
+	mod2 := func(item int) bool {
+		return (item % 2) == 0
 	}
 
-	in := make(chan interface{})
-	out := Filter(in, mod2)
-
-	in <- 7
-	in <- 4
-	if result := <-out; result != 4 {
-		t.Fatal("even pipe received 7 and 4 but output ", result)
-	}
-
-	close(in)
-}
-
-func TestFilterChainedConstructor(t *testing.T) {
-	mod2 := func(item interface{}) bool {
-		return (item.(int) % 2) == 0
-	}
-
-	in := make(chan interface{})
-	out := NewPipe(in).Filter(mod2).Output
+	in := make(chan int)
+	out := Filter(Filter(in, mod2), mod2).(chan int)
 
 	in <- 7
 	in <- 4

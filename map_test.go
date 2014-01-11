@@ -5,17 +5,18 @@
 package pipe
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestMapPipe(t *testing.T) {
 	count := 0
-	counter := func(item interface{}) interface{} {
+	counter := func(item int) string {
 		count++
-		return count
+		return fmt.Sprint(count)
 	}
-	in := make(chan interface{}, 5)
-	out := Map(in, counter)
+	in := make(chan int, 5)
+	out := Map(in, counter).(chan string)
 
 	go func() {
 		in <- 7
@@ -23,34 +24,8 @@ func TestMapPipe(t *testing.T) {
 		in <- 5
 	}()
 	for i := 1; i <= 3; i++ {
-		if result := <-out; result.(int) != i {
-			t.Fatal("mapping pipe received ", i, " items but output ", result.(int))
-		}
-	}
-
-	close(in)
-}
-
-func TestMapChainedConstructor(t *testing.T) {
-	count := 0
-	counter := func(item interface{}) interface{} {
-		count++
-		return count
-	}
-	in := make(chan interface{}, 10)
-	out := NewPipe(in).Map(counter).Output
-
-	// Push in some numbers
-	for i := 5; i > 0; i-- {
-		in <- i
-	}
-
-	// Check their index came out instead
-	var result interface{}
-	for i := 1; i <= 5; i++ {
-		result = <-out
-		if result.(int) != i {
-			t.Fatal("mapping pipe should have output", i, "but output", result.(int))
+		if result := <-out; result != fmt.Sprint(i) {
+			t.Fatal("mapping pipe received ", i, " items but output ", result)
 		}
 	}
 

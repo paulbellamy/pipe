@@ -4,32 +4,40 @@
 
 package pipe
 
-type ReduceFunc func(result, item interface{}) interface{}
+import (
+  "reflect"
+)
 
 // Accumulate the result of the reduce function being called on each item, then
 // when the input channel is closed, pass the result to the output channel
-func Reduce(input chan interface{}, initial interface{}, fn ReduceFunc) chan interface{} {
-	output := make(chan interface{})
-	var result interface{} = initial
+func Reduce(input interface{}, initial interface{}, fn interface{}) interface{} {
+  initialType := reflect.TypeOf(initial)
+	inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+	fnValue := reflect.ValueOf(fn)
+
+  signature := &functionSignature{
+    []reflect.Type{initialType, inputType.Elem()},
+    []reflect.Type{initialType},
+  }
+  signature.Check("Reduce fn", fn)
+
+  outputType := reflect.ChanOf(reflect.BothDir, initialType)
+	output := reflect.MakeChan(outputType, 0)
+
+  result := reflect.ValueOf(initial)
 	go func() {
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			result = fn(result, item)
+			result = fnValue.Call([]reflect.Value{result, item})[0]
 		}
 		// Input was closed, send the result
-		output <- result
-		close(output)
+		output.Send(result)
+    output.Close()
 	}()
-	return output
-}
-
-// Accumulate the result of the reduce function being called on each item, then
-// when the input channel is closed, pass the result to the output channel
-func (p *Pipe) Reduce(initial interface{}, fn ReduceFunc) *Pipe {
-	p.Output = Reduce(p.Output, initial, fn)
-	return p
+	return output.Interface()
 }

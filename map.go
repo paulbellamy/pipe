@@ -4,27 +4,33 @@
 
 package pipe
 
-type MapFunc func(item interface{}) interface{}
+import (
+  "fmt"
+  "reflect"
+)
 
 // Pass through the result of the map function for each item
-func Map(input chan interface{}, fn MapFunc) chan interface{} {
-	output := make(chan interface{})
+func Map(input interface{}, fn interface{}) interface{} {
+  inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+  fnValue := reflect.ValueOf(fn)
+  fnType := fnValue.Type()
+  if fnType.NumIn() != 1 || fnType.In(0) != inputType.Elem() || fnType.NumOut() != 1 {
+		panic(fmt.Sprintf("Map fn must be of type func(%v) T, but was %v", inputType.Elem(), fnType))
+  }
+
+  outputType := reflect.ChanOf(reflect.BothDir, fnType.Out(0))
+	output := reflect.MakeChan(outputType, 0)
 	go func() {
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			output <- fn(item)
+			output.Send(fnValue.Call([]reflect.Value{item})[0])
 		}
-		close(output)
+    output.Close()
 	}()
-	return output
-}
-
-// Helper for chained construction
-func (p *Pipe) Map(fn MapFunc) *Pipe {
-	p.Output = Map(p.Output, fn)
-	return p
+	return output.Interface()
 }

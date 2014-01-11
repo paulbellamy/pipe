@@ -9,9 +9,9 @@ import (
 )
 
 func TestZipPipe(t *testing.T) {
-	other := make(chan interface{}, 5)
-	in := make(chan interface{}, 5)
-	out := Zip(in, other)
+	other := make(chan int, 5)
+	in := make(chan int, 5)
+	out := Zip(in, other).(chan []int)
 
 	in <- 5
 	in <- 10
@@ -22,39 +22,13 @@ func TestZipPipe(t *testing.T) {
 	for i := 1; i <= 2; i++ {
 		result := <-out
 		expected := []int{i * 5, (i * 5) + 1}
-		if len(result.([]interface{})) != len(expected) {
-			t.Fatal("expected channel output to match", expected, "but got", result.([]int))
+		if len(result) != len(expected) {
+			t.Fatal("expected channel output to match", expected, "but got", result)
 		}
 
-		for j := 0; j < len(result.([]interface{})); j++ {
-			if result.([]interface{})[j].(int) != expected[j] {
-				t.Fatal("expected channel output to match", expected, "but got", result.([]interface{}))
-			}
-		}
-	}
-}
-
-func TestZipChainedConstructor(t *testing.T) {
-	other := make(chan interface{}, 5)
-	in := make(chan interface{}, 5)
-	out := NewPipe(in).Zip(other).Output
-
-	in <- 5
-	in <- 10
-	in <- 20
-	other <- 6
-	other <- 11
-
-	for i := 1; i <= 2; i++ {
-		result := <-out
-		expected := []int{i * 5, (i * 5) + 1}
-		if len(result.([]interface{})) != len(expected) {
-			t.Fatal("expected channel output to match", expected, "but got", result.([]int))
-		}
-
-		for j := 0; j < len(result.([]interface{})); j++ {
-			if result.([]interface{})[j].(int) != expected[j] {
-				t.Fatal("expected channel output to match", expected, "but got", result.([]interface{}))
+		for j := 0; j < len(result); j++ {
+			if result[j] != expected[j] {
+				t.Fatal("expected channel output to match", expected, "but got", result)
 			}
 		}
 	}

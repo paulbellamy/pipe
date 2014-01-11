@@ -4,46 +4,52 @@
 
 package pipe
 
-type SkipWhileFunc func(item interface{}) bool
+import (
+  "reflect"
+)
 
 // Skip the items from the input pipe until the given function returns true.
 // After that , the rest are passed straight through.
-func SkipWhile(input chan interface{}, fn SkipWhileFunc) chan interface{} {
-	output := make(chan interface{})
+func SkipWhile(input interface{}, fn interface{}) interface{} {
+	inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+	fnValue := reflect.ValueOf(fn)
+
+  signature := &functionSignature{
+    []reflect.Type{inputType.Elem()},
+    []reflect.Type{reflect.TypeOf(false)},
+  }
+  signature.Check("SkipWhile fn", fn)
+
+	output := reflect.MakeChan(inputType, 0)
 	go func() {
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				// input closed, abort
-				close(output)
+        output.Close()
 				return
 			}
 
 			// check if we should output this
-			if !fn(item) {
-				output <- item
+			if !fnValue.Call([]reflect.Value{item})[0].Bool() {
+        output.Send(item)
 				break
 			}
 		}
 
 		// send any messages after this
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			output <- item
+      output.Send(item)
 		}
 
-		close(output)
+    output.Close()
 
 	}()
-	return output
-}
-
-// Helper function for chained constructor
-func (p *Pipe) SkipWhile(fn SkipWhileFunc) *Pipe {
-	p.Output = SkipWhile(p.Output, fn)
-	return p
+	return output.Interface()
 }

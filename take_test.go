@@ -9,30 +9,8 @@ import (
 )
 
 func TestTakePipe(t *testing.T) {
-	in := make(chan interface{}, 10)
-	out := Take(in, 3)
-
-	for i := 0; i < 5; i++ {
-		in <- i
-	}
-
-	count := 0
-	for {
-		_, ok := <-out
-		if !ok {
-			break
-		}
-		count++
-	}
-
-	if count != 3 {
-		t.Fatal("take(3) pipe received 5 items but output ", count)
-	}
-}
-
-func TestTakeChainedConstructor(t *testing.T) {
-	in := make(chan interface{}, 10)
-	out := NewPipe(in).Take(3).Output
+	in := make(chan int, 10)
+	out := Take(in, 3).(chan int)
 
 	for i := 0; i < 5; i++ {
 		in <- i

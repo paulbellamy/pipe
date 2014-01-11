@@ -4,30 +4,36 @@
 
 package pipe
 
-type FilterFunc func(item interface{}) bool
+import (
+  "reflect"
+)
 
 // Apply a filtering function to a channel, which will only pass through items
 // when the filter func returns true.
-func Filter(input chan interface{}, fn FilterFunc) chan interface{} {
-	output := make(chan interface{})
+func Filter(input interface{}, fn interface{}) interface{} {
+	inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+	fnValue := reflect.ValueOf(fn)
+
+  signature := &functionSignature{
+    []reflect.Type{inputType.Elem()},
+    []reflect.Type{reflect.TypeOf(false)},
+  }
+  signature.Check("Filter fn", fn)
+
+	output := reflect.MakeChan(inputType, 0)
 	go func() {
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			if fn(item) {
-				output <- item
+			if fnValue.Call([]reflect.Value{item})[0].Bool() {
+				output.Send(item)
 			}
 		}
-		close(output)
+    output.Close()
 	}()
-	return output
-}
-
-// Helper for chained construction
-func (p *Pipe) Filter(fn FilterFunc) *Pipe {
-	p.Output = Filter(p.Output, fn)
-	return p
+	return output.Interface()
 }

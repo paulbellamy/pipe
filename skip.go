@@ -4,38 +4,39 @@
 
 package pipe
 
+import (
+  "reflect"
+)
+
 // Skip a given number of items from the input pipe. After that number has been
 // dropped, the rest are passed straight through.
-func Skip(input chan interface{}, num int64) chan interface{} {
-	output := make(chan interface{})
+func Skip(input interface{}, num int64) interface{} {
+	inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+
+	output := reflect.MakeChan(inputType, 0)
 	var count int64
 	go func() {
 		// skip num items
 		for count = 0; count < num; count++ {
-			_, ok := <-input
+			_, ok := inputValue.Recv()
 			if !ok {
 				// channel closed early
-				close(output)
+        output.Close()
 				return
 			}
 		}
 
 		// Return the rest
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			output <- item
+      output.Send(item)
 		}
-		close(output)
+    output.Close()
 	}()
-	return output
-}
-
-// Helper for chained constructor
-func (p *Pipe) Skip(num int64) *Pipe {
-	p.Output = Skip(p.Output, num)
-	return p
+	return output.Interface()
 }

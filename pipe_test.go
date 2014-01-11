@@ -29,10 +29,7 @@ func TestMultiPipe(t *testing.T) {
 		}
 	}
 	in := make(chan interface{})
-	out := NewPipe(in).
-		Filter(mod(5)).
-		Filter(mod(2)).
-		Output
+	out := Filter(Filter(in, mod(5)), mod(2)).(chan interface{})
 
 	go func() {
 		in <- 2

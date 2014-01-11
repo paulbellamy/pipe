@@ -4,30 +4,35 @@
 
 package pipe
 
-// A function which foreachs
-type ForEachFunc func(item interface{})
+import (
+	"reflect"
+)
 
 // Execute a function for each item (without modifying the item). Useful for
 // monitoring, logging, or causing some side-effect.
-func ForEach(input chan interface{}, fn ForEachFunc) chan interface{} {
-	output := make(chan interface{})
+func ForEach(input interface{}, fn interface{}) interface{} {
+	inputValue := reflect.ValueOf(input)
+  inputType := inputValue.Type()
+	fnValue := reflect.ValueOf(fn)
+
+  signature := &functionSignature{
+    []reflect.Type{inputType.Elem()},
+    []reflect.Type{},
+  }
+  signature.Check("ForEach fn", fn)
+
+	output := reflect.MakeChan(inputType, 0)
 	go func() {
 		for {
-			item, ok := <-input
+			item, ok := inputValue.Recv()
 			if !ok {
 				break
 			}
 
-			fn(item)
-			output <- item
+			fnValue.Call([]reflect.Value{item})
+			output.Send(item)
 		}
-		close(output)
+		output.Close()
 	}()
-	return output
-}
-
-// Execute a function for each item (without modifying the item)
-func (p *Pipe) ForEach(fn ForEachFunc) *Pipe {
-	p.Output = ForEach(p.Output, fn)
-	return p
+	return output.Interface()
 }
