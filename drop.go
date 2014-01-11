@@ -5,14 +5,14 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // Drop a given number of items from the input pipe. After that number has been
 // dropped, the rest are passed straight through.
 func Drop(input interface{}, num int64) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 
 	output := reflect.MakeChan(inputType, 0)
 	var count int64
@@ -22,7 +22,7 @@ func Drop(input interface{}, num int64) interface{} {
 			_, ok := inputValue.Recv()
 			if !ok {
 				// channel closed early
-        output.Close()
+				output.Close()
 				return
 			}
 		}
@@ -34,9 +34,9 @@ func Drop(input interface{}, num int64) interface{} {
 				break
 			}
 
-      output.Send(item)
+			output.Send(item)
 		}
-    output.Close()
+		output.Close()
 	}()
 	return output.Interface()
 }

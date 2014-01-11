@@ -5,27 +5,27 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // Accumulate the result of the reduce function being called on each item, then
 // when the input channel is closed, pass the result to the output channel
 func Reduce(input interface{}, initial interface{}, fn interface{}) interface{} {
-  initialType := reflect.TypeOf(initial)
+	initialType := reflect.TypeOf(initial)
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
 
-  signature := &functionSignature{
-    []reflect.Type{initialType, inputType.Elem()},
-    []reflect.Type{initialType},
-  }
-  signature.Check("Reduce fn", fn)
+	signature := &functionSignature{
+		[]reflect.Type{initialType, inputType.Elem()},
+		[]reflect.Type{initialType},
+	}
+	signature.Check("Reduce fn", fn)
 
-  outputType := reflect.ChanOf(reflect.BothDir, initialType)
+	outputType := reflect.ChanOf(reflect.BothDir, initialType)
 	output := reflect.MakeChan(outputType, 0)
 
-  result := reflect.ValueOf(initial)
+	result := reflect.ValueOf(initial)
 	go func() {
 		for {
 			item, ok := inputValue.Recv()
@@ -37,7 +37,7 @@ func Reduce(input interface{}, initial interface{}, fn interface{}) interface{} 
 		}
 		// Input was closed, send the result
 		output.Send(result)
-    output.Close()
+		output.Close()
 	}()
 	return output.Interface()
 }

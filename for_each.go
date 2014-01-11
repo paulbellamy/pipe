@@ -12,14 +12,14 @@ import (
 // monitoring, logging, or causing some side-effect.
 func ForEach(input interface{}, fn interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
 
-  signature := &functionSignature{
-    []reflect.Type{inputType.Elem()},
-    []reflect.Type{},
-  }
-  signature.Check("ForEach fn", fn)
+	signature := &functionSignature{
+		[]reflect.Type{inputType.Elem()},
+		[]reflect.Type{},
+	}
+	signature.Check("ForEach fn", fn)
 
 	output := reflect.MakeChan(inputType, 0)
 	go func() {

@@ -12,7 +12,7 @@ func TestForEach(t *testing.T) {
 	count := 0
 
 	in := make(chan int, 5)
-  counter := func(item int) {
+	counter := func(item int) {
 		count++
 	}
 	out := ForEach(ForEach(in, counter), counter).(chan int)

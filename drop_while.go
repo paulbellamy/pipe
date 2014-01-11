@@ -5,21 +5,21 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // Drop the items from the input pipe until the given function returns true.
 // After that , the rest are passed straight through.
 func DropWhile(input interface{}, fn interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
 
-  signature := &functionSignature{
-    []reflect.Type{inputType.Elem()},
-    []reflect.Type{reflect.TypeOf(false)},
-  }
-  signature.Check("DropWhile fn", fn)
+	signature := &functionSignature{
+		[]reflect.Type{inputType.Elem()},
+		[]reflect.Type{reflect.TypeOf(false)},
+	}
+	signature.Check("DropWhile fn", fn)
 
 	output := reflect.MakeChan(inputType, 0)
 	go func() {
@@ -27,13 +27,13 @@ func DropWhile(input interface{}, fn interface{}) interface{} {
 			item, ok := inputValue.Recv()
 			if !ok {
 				// input closed, abort
-        output.Close()
+				output.Close()
 				return
 			}
 
 			// check if we should output this
 			if !fnValue.Call([]reflect.Value{item})[0].Bool() {
-        output.Send(item)
+				output.Send(item)
 				break
 			}
 		}
@@ -45,10 +45,10 @@ func DropWhile(input interface{}, fn interface{}) interface{} {
 				break
 			}
 
-      output.Send(item)
+			output.Send(item)
 		}
 
-    output.Close()
+		output.Close()
 
 	}()
 	return output.Interface()

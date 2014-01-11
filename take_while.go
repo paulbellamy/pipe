@@ -5,7 +5,7 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // Accept items from the input pipe until the given function returns false.
@@ -13,14 +13,14 @@ import (
 // be closed.
 func TakeWhile(input interface{}, fn interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
 
-  signature := &functionSignature{
-    []reflect.Type{inputType.Elem()},
-    []reflect.Type{reflect.TypeOf(false)},
-  }
-  signature.Check("TakeWhile fn", fn)
+	signature := &functionSignature{
+		[]reflect.Type{inputType.Elem()},
+		[]reflect.Type{reflect.TypeOf(false)},
+	}
+	signature.Check("TakeWhile fn", fn)
 
 	output := reflect.MakeChan(inputType, 0)
 	go func() {
@@ -35,11 +35,11 @@ func TakeWhile(input interface{}, fn interface{}) interface{} {
 				break
 			}
 
-      output.Send(item)
+			output.Send(item)
 		}
 
 		// hit the toggle, close the channel
-    output.Close()
+		output.Close()
 
 		// drop any extra messages
 		for {

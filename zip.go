@@ -5,8 +5,8 @@
 package pipe
 
 import (
-  "fmt"
-  "reflect"
+	"fmt"
+	"reflect"
 )
 
 // Group each message from the input channel with it's corresponding message
@@ -22,23 +22,23 @@ import (
 //
 
 func zipValues(t reflect.Type, a, b reflect.Value) reflect.Value {
-  zipped := reflect.MakeSlice(t, 0, 2)
-  return reflect.Append(zipped, a, b)
+	zipped := reflect.MakeSlice(t, 0, 2)
+	return reflect.Append(zipped, a, b)
 }
 
 func Zip(input interface{}, other interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 
-  otherValue := reflect.ValueOf(other)
-  otherType := otherValue.Type()
+	otherValue := reflect.ValueOf(other)
+	otherType := otherValue.Type()
 
-  if inputType != otherType {
-    panic(fmt.Sprintf("Zip input types must match, but they were %v and %v", inputType, otherType))
-  }
+	if inputType != otherType {
+		panic(fmt.Sprintf("Zip input types must match, but they were %v and %v", inputType, otherType))
+	}
 
-  zippedType := reflect.SliceOf(inputType.Elem())
-  outputType := reflect.ChanOf(reflect.BothDir, zippedType)
+	zippedType := reflect.SliceOf(inputType.Elem())
+	outputType := reflect.ChanOf(reflect.BothDir, zippedType)
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
 		// only send num items
@@ -53,10 +53,10 @@ func Zip(input interface{}, other interface{}) interface{} {
 				break
 			}
 
-      output.Send(zipValues(zippedType, a, b))
+			output.Send(zipValues(zippedType, a, b))
 		}
 
-    output.Close()
+		output.Close()
 	}()
 	return output.Interface()
 }

@@ -5,7 +5,7 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // Accept only the given number of items from the input pipe. After that number
@@ -13,7 +13,7 @@ import (
 // will be closed.
 func Take(input interface{}, num int64) interface{} {
 	inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
+	inputType := inputValue.Type()
 
 	output := reflect.MakeChan(inputType, 0)
 	var count int64
@@ -25,11 +25,11 @@ func Take(input interface{}, num int64) interface{} {
 				break
 			}
 
-      output.Send(item)
+			output.Send(item)
 		}
 
 		// sent our max, close the channel
-    output.Close()
+		output.Close()
 
 		// drop any extra messages
 		for {
