@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestMapPipe(t *testing.T) {
+func TestMapChan(t *testing.T) {
 	count := 0
 	counter := func(item int) string {
 		count++
@@ -25,9 +25,25 @@ func TestMapPipe(t *testing.T) {
 	}()
 	for i := 1; i <= 3; i++ {
 		if result := <-out; result != fmt.Sprint(i) {
-			t.Fatal("mapping pipe received ", i, " items but output ", result)
+			t.Fatal("MapChan received ", i, " items but output ", result)
 		}
 	}
 
 	close(in)
+}
+
+func TestMapSlice(t *testing.T) {
+	count := 0
+	counter := func(item int) string {
+		count++
+		return fmt.Sprint(count)
+	}
+	in := []int{7,4,5}
+	out := Map(in, counter).([]string)
+
+	for i := 1; i <= 3; i++ {
+		if result := out[i - 1]; result != fmt.Sprint(i) {
+			t.Fatal("MapSlice received", in, "but output", out, "expected", []string{"1", "2", "3"})
+		}
+	}
 }

@@ -9,28 +9,55 @@ import (
   "reflect"
 )
 
-// Pass through the result of the map function for each item
 func Map(input interface{}, fn interface{}) interface{} {
-  inputValue := reflect.ValueOf(input)
-  inputType := inputValue.Type()
-  fnValue := reflect.ValueOf(fn)
-  fnType := fnValue.Type()
-  if fnType.NumIn() != 1 || fnType.In(0) != inputType.Elem() || fnType.NumOut() != 1 {
-		panic(fmt.Sprintf("Map fn must be of type func(%v) T, but was %v", inputType.Elem(), fnType))
-  }
+  checkMapFuncType(input, fn)
 
-  outputType := reflect.ChanOf(reflect.BothDir, fnType.Out(0))
+  inputValue := reflect.ValueOf(input)
+  fnValue := reflect.ValueOf(fn)
+
+  switch inputValue.Kind() {
+  case reflect.Chan:
+    return mapChan(inputValue, fnValue)
+  case reflect.Array:
+    return mapSlice(inputValue, fnValue)
+  case reflect.Slice:
+    return mapSlice(inputValue, fnValue)
+  }
+  panic("Map called on invalid type")
+}
+
+// Pass through the result of the map function for each item
+func mapChan(input, fn reflect.Value) interface{} {
+  outputType := reflect.ChanOf(reflect.BothDir, fn.Type().Out(0))
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
 		for {
-			item, ok := inputValue.Recv()
+			item, ok := input.Recv()
 			if !ok {
 				break
 			}
 
-			output.Send(fnValue.Call([]reflect.Value{item})[0])
+			output.Send(fn.Call([]reflect.Value{item})[0])
 		}
     output.Close()
 	}()
 	return output.Interface()
+}
+
+func mapSlice(input, fn reflect.Value) interface{} {
+  outputType := reflect.SliceOf(fn.Type().Out(0))
+	output := reflect.MakeSlice(outputType, 0, input.Len())
+  for i := 0; i < input.Len(); i++ {
+    output = reflect.Append(output, fn.Call([]reflect.Value{input.Index(i)})[0])
+  }
+
+  return output.Interface()
+}
+
+func checkMapFuncType(input interface{}, fn interface{}) {
+  inputType := reflect.TypeOf(input)
+  fnType := reflect.TypeOf(fn)
+  if fnType.NumIn() != 1 || fnType.In(0) != inputType.Elem() || fnType.NumOut() != 1 {
+		panic(fmt.Sprintf("Map fn must be of type func(%v) T, but was %v", inputType.Elem(), fnType))
+  }
 }
