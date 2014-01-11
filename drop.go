@@ -8,16 +8,16 @@ import (
   "reflect"
 )
 
-// Skip a given number of items from the input pipe. After that number has been
+// Drop a given number of items from the input pipe. After that number has been
 // dropped, the rest are passed straight through.
-func Skip(input interface{}, num int64) interface{} {
+func Drop(input interface{}, num int64) interface{} {
 	inputValue := reflect.ValueOf(input)
   inputType := inputValue.Type()
 
 	output := reflect.MakeChan(inputType, 0)
 	var count int64
 	go func() {
-		// skip num items
+		// drop num items
 		for count = 0; count < num; count++ {
 			_, ok := inputValue.Recv()
 			if !ok {

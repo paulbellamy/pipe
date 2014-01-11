@@ -14,7 +14,7 @@ Pipes are created with the ```NewPipe(input, output chan interface{}) *Pipe``` m
 
 After that there are several chaining methods to build up the processing. Once the pipe is prepared, simply pipe items into the input channel and retrieve the results from the output channel.
 
-Be careful, because some of the transformations (e.g. Reduce, Skip) result in channels which are 'leaky'. Meaning that one item in may not equal one item out.
+Be careful, because some of the transformations (e.g. Reduce, Drop) result in channels which are 'leaky'. Meaning that one item in may not equal one item out.
 
 For example, to count the number of items passing through a channel:
 
@@ -67,8 +67,8 @@ input <- 5 // will come through as 7
 * ForEach(func(item interface{}))
 * Map(func(item interface{}) interface{})
 * Reduce(initial interface{}, func(accumulator interface{}, item interface{}) interface{})
-* Skip(n int64)
-* SkipWhile(func(item interface{}) bool)
+* Drop(n int64)
+* DropWhile(func(item interface{}) bool)
 * Take(n int64)
 * TakeWhile(func(item interface{}) bool)
 * Zip(other chan interface{})
@@ -92,12 +92,12 @@ func Reduce(input chan interface{}, initial interface{}, fn ReduceFunc) chan int
     then when the input channel is closed, pass the result to the output
     channel
 
-func Skip(input chan interface{}, num int64) chan interface{}
-    Skip a given number of items from the input pipe. After that number has
+func Drop(input chan interface{}, num int64) chan interface{}
+    Drop a given number of items from the input pipe. After that number has
     been dropped, the rest are passed straight through.
 
-func SkipWhile(input chan interface{}, fn SkipWhileFunc) chan interface{}
-    Skip the items from the input pipe until the given function returns
+func DropWhile(input chan interface{}, fn DropWhileFunc) chan interface{}
+    Drop the items from the input pipe until the given function returns
     true. After that , the rest are passed straight through.
 
 func Take(input chan interface{}, num int64) chan interface{}
@@ -158,10 +158,10 @@ func (p *Pipe) Reduce(initial interface{}, fn ReduceFunc) *Pipe
     then when the input channel is closed, pass the result to the output
     channel
 
-func (p *Pipe) Skip(num int64) *Pipe
+func (p *Pipe) Drop(num int64) *Pipe
     Helper for chained constructor
 
-func (p *Pipe) SkipWhile(fn SkipWhileFunc) *Pipe
+func (p *Pipe) DropWhile(fn DropWhileFunc) *Pipe
     Helper function for chained constructor
 
 func (p *Pipe) Take(num int64) *Pipe
@@ -175,7 +175,7 @@ func (p *Pipe) Zip(other chan interface{}) *Pipe
 
 type ReduceFunc func(result, item interface{}) interface{}
 
-type SkipWhileFunc func(item interface{}) bool
+type DropWhileFunc func(item interface{}) bool
 
 type TakeWhileFunc func(item interface{}) bool
 ```

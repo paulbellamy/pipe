@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-func TestSkipWhilePipe(t *testing.T) {
+func TestDropWhilePipe(t *testing.T) {
 	in := make(chan int, 5)
-	out := SkipWhile(in, func(item int) bool {
+	out := DropWhile(in, func(item int) bool {
 		return item < 3
 	}).(chan int)
 
@@ -20,7 +20,7 @@ func TestSkipWhilePipe(t *testing.T) {
 
 	result := <-out
 	if result != 3 {
-		t.Fatal("skipwhile should have skipped all results until 3, but output", result)
+		t.Fatal("DropWhile should have dropped all results until 3, but output", result)
 	}
 
 	close(in)

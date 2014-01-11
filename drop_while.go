@@ -8,9 +8,9 @@ import (
   "reflect"
 )
 
-// Skip the items from the input pipe until the given function returns true.
+// Drop the items from the input pipe until the given function returns true.
 // After that , the rest are passed straight through.
-func SkipWhile(input interface{}, fn interface{}) interface{} {
+func DropWhile(input interface{}, fn interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
   inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
@@ -19,7 +19,7 @@ func SkipWhile(input interface{}, fn interface{}) interface{} {
     []reflect.Type{inputType.Elem()},
     []reflect.Type{reflect.TypeOf(false)},
   }
-  signature.Check("SkipWhile fn", fn)
+  signature.Check("DropWhile fn", fn)
 
 	output := reflect.MakeChan(inputType, 0)
 	go func() {
