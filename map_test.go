@@ -38,11 +38,31 @@ func TestMapSlice(t *testing.T) {
 		count++
 		return fmt.Sprint(count)
 	}
-	in := []int{7,4,5}
+	in := []int{7, 4, 5}
 	out := Map(in, counter).([]string)
 
 	for i := 1; i <= 3; i++ {
-		if result := out[i - 1]; result != fmt.Sprint(i) {
+		if result := out[i-1]; result != fmt.Sprint(i) {
+			t.Fatal("MapSlice received", in, "but output", out, "expected", []string{"1", "2", "3"})
+		}
+	}
+}
+
+func TestMapMap(t *testing.T) {
+	count := 0
+	counter := func(key int, item string) string {
+		count++
+		return fmt.Sprint(count)
+	}
+	in := map[int]string{
+		7: "a",
+		4: "b",
+		5: "c",
+	}
+	out := Map(in, counter).([]string)
+
+	for i := 1; i <= 3; i++ {
+		if result := out[i-1]; result != fmt.Sprint(i) {
 			t.Fatal("MapSlice received", in, "but output", out, "expected", []string{"1", "2", "3"})
 		}
 	}

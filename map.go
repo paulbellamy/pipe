@@ -5,30 +5,32 @@
 package pipe
 
 import (
-  "fmt"
-  "reflect"
+	"fmt"
+	"reflect"
 )
 
 func Map(input interface{}, fn interface{}) interface{} {
-  checkMapFuncType(input, fn)
+	checkMapFuncType(input, fn)
 
-  inputValue := reflect.ValueOf(input)
-  fnValue := reflect.ValueOf(fn)
+	inputValue := reflect.ValueOf(input)
+	fnValue := reflect.ValueOf(fn)
 
-  switch inputValue.Kind() {
-  case reflect.Chan:
-    return mapChan(inputValue, fnValue)
-  case reflect.Array:
-    return mapSlice(inputValue, fnValue)
-  case reflect.Slice:
-    return mapSlice(inputValue, fnValue)
-  }
-  panic("Map called on invalid type")
+	switch inputValue.Kind() {
+	case reflect.Chan:
+		return mapChan(inputValue, fnValue)
+	case reflect.Array:
+		return mapSlice(inputValue, fnValue)
+	case reflect.Slice:
+		return mapSlice(inputValue, fnValue)
+	case reflect.Map:
+		return mapMap(inputValue, fnValue)
+	}
+	panic("Map called on invalid type")
 }
 
 // Pass through the result of the map function for each item
 func mapChan(input, fn reflect.Value) interface{} {
-  outputType := reflect.ChanOf(reflect.BothDir, fn.Type().Out(0))
+	outputType := reflect.ChanOf(reflect.BothDir, fn.Type().Out(0))
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
 		for {
@@ -39,25 +41,47 @@ func mapChan(input, fn reflect.Value) interface{} {
 
 			output.Send(fn.Call([]reflect.Value{item})[0])
 		}
-    output.Close()
+		output.Close()
 	}()
 	return output.Interface()
 }
 
 func mapSlice(input, fn reflect.Value) interface{} {
-  outputType := reflect.SliceOf(fn.Type().Out(0))
+	outputType := reflect.SliceOf(fn.Type().Out(0))
 	output := reflect.MakeSlice(outputType, 0, input.Len())
-  for i := 0; i < input.Len(); i++ {
-    output = reflect.Append(output, fn.Call([]reflect.Value{input.Index(i)})[0])
-  }
+	for i := 0; i < input.Len(); i++ {
+		output = reflect.Append(output, fn.Call([]reflect.Value{input.Index(i)})[0])
+	}
 
-  return output.Interface()
+	return output.Interface()
+}
+
+func mapMap(input, fn reflect.Value) interface{} {
+	outputType := reflect.SliceOf(fn.Type().Out(0))
+	output := reflect.MakeSlice(outputType, 0, input.Len())
+	for _, key := range input.MapKeys() {
+		output = reflect.Append(output, fn.Call([]reflect.Value{key, input.MapIndex(key)})[0])
+	}
+
+	return output.Interface()
 }
 
 func checkMapFuncType(input interface{}, fn interface{}) {
-  inputType := reflect.TypeOf(input)
-  fnType := reflect.TypeOf(fn)
-  if fnType.NumIn() != 1 || fnType.In(0) != inputType.Elem() || fnType.NumOut() != 1 {
+	inputType := reflect.TypeOf(input)
+	fnType := reflect.TypeOf(fn)
+
+	valid := (fnType.NumOut() == 1)
+	switch inputType.Kind() {
+	case reflect.Map:
+		valid = fnType.NumIn() == 2 &&
+			fnType.In(0) == inputType.Key() &&
+			fnType.In(1) == inputType.Elem()
+	default:
+		valid = fnType.NumIn() == 1 &&
+			fnType.In(0) == inputType.Elem()
+	}
+
+	if !valid {
 		panic(fmt.Sprintf("Map fn must be of type func(%v) T, but was %v", inputType.Elem(), fnType))
-  }
+	}
 }
