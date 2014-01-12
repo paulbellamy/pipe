@@ -7,6 +7,7 @@ package pipe
 import (
 	"fmt"
 	"reflect"
+	"seq"
 )
 
 func Map(input interface{}, fn interface{}) interface{} {
@@ -33,13 +34,8 @@ func mapChan(input, fn reflect.Value) interface{} {
 	outputType := reflect.ChanOf(reflect.BothDir, fn.Type().Out(0))
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
-		for {
-			item, ok := input.Recv()
-			if !ok {
-				break
-			}
-
-			output.Send(fn.Call([]reflect.Value{item})[0])
+		for s := seq.New(input); !s.Empty(); s = s.Rest() {
+			output.Send(fn.Call([]reflect.Value{reflect.ValueOf(s.First())})[0])
 		}
 		output.Close()
 	}()
@@ -49,8 +45,12 @@ func mapChan(input, fn reflect.Value) interface{} {
 func mapSlice(input, fn reflect.Value) interface{} {
 	outputType := reflect.SliceOf(fn.Type().Out(0))
 	output := reflect.MakeSlice(outputType, 0, input.Len())
-	for i := 0; i < input.Len(); i++ {
-		output = reflect.Append(output, fn.Call([]reflect.Value{input.Index(i)})[0])
+
+	for s := seq.New(input); !s.Empty(); s = s.Rest() {
+		output = reflect.Append(
+			output,
+			fn.Call([]reflect.Value{reflect.ValueOf(s.First())})[0],
+		)
 	}
 
 	return output.Interface()
