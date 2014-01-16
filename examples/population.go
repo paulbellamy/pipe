@@ -11,14 +11,14 @@ type place struct {
 }
 
 func statusByPopulation(p place) string {
-  switch {
-  case p.population > 1000000:
-    return "City"
-  case p.population > 5000:
-    return "Town"
-  default:
-    return "Village"
-  }
+	switch {
+	case p.population > 1000000:
+		return "City"
+	case p.population > 5000:
+		return "Town"
+	default:
+		return "Village"
+	}
 }
 
 func main() {
