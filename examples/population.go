@@ -27,5 +27,5 @@ func main() {
 		{"Cambridge", 117900},
 		{"Prague", 1188126},
 	}
-	fmt.Println(Map(places, statusByPopulation))
+	fmt.Println(Map(statusByPopulation, places))
 }
