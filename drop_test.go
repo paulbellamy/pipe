@@ -10,7 +10,7 @@ import (
 
 func TestDropChan(t *testing.T) {
 	in := make(chan int, 10)
-	out := Drop(in, 3).(chan int)
+	out := Drop(3, in).(chan int)
 
 	for i := 0; i < 5; i++ {
 		in <- i
@@ -34,7 +34,7 @@ func TestDropChan(t *testing.T) {
 
 func TestDropSlice(t *testing.T) {
 	in := []int{0, 1, 2, 3, 4}
-	out := Drop(in, 3).([]int)
+	out := Drop(3, in).([]int)
 
 	if len(out) != 2 || out[0] != 3 || out[1] != 4 {
 		t.Fatal("Drop(3) expected", []int{3, 4}, "but output ", out)
@@ -43,7 +43,7 @@ func TestDropSlice(t *testing.T) {
 
 func TestDropSliceNone(t *testing.T) {
 	in := []int{0, 1, 2, 3, 4}
-	out := Drop(in, 0).([]int)
+	out := Drop(0, in).([]int)
 
 	if len(out) != 5 {
 		t.Fatal("Drop(3) expected", in, "but output ", out)
@@ -52,7 +52,7 @@ func TestDropSliceNone(t *testing.T) {
 
 func TestDropSliceEmpty(t *testing.T) {
 	in := []int{}
-	out := Drop(in, 3).([]int)
+	out := Drop(3, in).([]int)
 
 	if len(out) != 0 {
 		t.Fatal("Drop(3) expected", in, "but output ", out)
@@ -61,7 +61,7 @@ func TestDropSliceEmpty(t *testing.T) {
 
 func TestDropSliceMoreThanRemains(t *testing.T) {
 	in := []int{0, 1, 2, 3, 4}
-	out := Drop(in, 6).([]int)
+	out := Drop(6, in).([]int)
 
 	if len(out) != 0 {
 		t.Fatal("Drop(3) expected", []int{}, "but output ", out)

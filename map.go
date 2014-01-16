@@ -10,27 +10,27 @@ import (
 	"seq"
 )
 
-func Map(input interface{}, fn interface{}) interface{} {
-	checkMapFuncType(input, fn)
+func Map(fn, input interface{}) interface{} {
+	checkMapFuncType(fn, input)
 
 	inputValue := reflect.ValueOf(input)
 	fnValue := reflect.ValueOf(fn)
 
 	switch inputValue.Kind() {
 	case reflect.Chan:
-		return mapChan(inputValue, fnValue)
+		return mapChan(fnValue, inputValue)
 	case reflect.Array:
-		return mapSlice(inputValue, fnValue)
+		return mapSlice(fnValue, inputValue)
 	case reflect.Slice:
-		return mapSlice(inputValue, fnValue)
+		return mapSlice(fnValue, inputValue)
 	case reflect.Map:
-		return mapMap(inputValue, fnValue)
+		return mapMap(fnValue, inputValue)
 	}
 	panic("Map called on invalid type")
 }
 
 // Pass through the result of the map function for each item
-func mapChan(input, fn reflect.Value) interface{} {
+func mapChan(fn, input reflect.Value) interface{} {
 	outputType := reflect.ChanOf(reflect.BothDir, fn.Type().Out(0))
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
@@ -42,7 +42,7 @@ func mapChan(input, fn reflect.Value) interface{} {
 	return output.Interface()
 }
 
-func mapSlice(input, fn reflect.Value) interface{} {
+func mapSlice(fn, input reflect.Value) interface{} {
 	outputType := reflect.SliceOf(fn.Type().Out(0))
 	output := reflect.MakeSlice(outputType, 0, input.Len())
 
@@ -56,7 +56,7 @@ func mapSlice(input, fn reflect.Value) interface{} {
 	return output.Interface()
 }
 
-func mapMap(input, fn reflect.Value) interface{} {
+func mapMap(fn, input reflect.Value) interface{} {
 	outputType := reflect.SliceOf(fn.Type().Out(0))
 	output := reflect.MakeSlice(outputType, 0, input.Len())
 	for _, key := range input.MapKeys() {
@@ -66,7 +66,7 @@ func mapMap(input, fn reflect.Value) interface{} {
 	return output.Interface()
 }
 
-func checkMapFuncType(input interface{}, fn interface{}) {
+func checkMapFuncType(fn, input interface{}) {
 	inputType := reflect.TypeOf(input)
 	fnType := reflect.TypeOf(fn)
 

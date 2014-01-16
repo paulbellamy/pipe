@@ -10,7 +10,7 @@ import (
 
 // Accumulate the result of the reduce function being called on each item, then
 // when the input channel is closed, pass the result to the output channel
-func Reduce(input interface{}, initial interface{}, fn interface{}) interface{} {
+func Reduce(fn, initial, input interface{}) interface{} {
 	initialType := reflect.TypeOf(initial)
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()

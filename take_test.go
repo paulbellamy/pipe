@@ -10,7 +10,7 @@ import (
 
 func TestTakePipe(t *testing.T) {
 	in := make(chan int, 10)
-	out := Take(in, 3).(chan int)
+	out := Take(3, in).(chan int)
 
 	for i := 0; i < 5; i++ {
 		in <- i

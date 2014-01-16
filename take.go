@@ -11,12 +11,12 @@ import (
 // Accept only the given number of items from the input pipe. After that number
 // has been received, all input messages will be ignored and the output channel
 // will be closed.
-func Take(input interface{}, num int64) interface{} {
+func Take(num int, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()
 
 	output := reflect.MakeChan(inputType, 0)
-	var count int64
+	var count int
 	go func() {
 		// only send num items
 		for count = 0; count < num; count++ {

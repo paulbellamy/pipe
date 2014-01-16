@@ -16,7 +16,7 @@ func TestMapChan(t *testing.T) {
 		return fmt.Sprint(count)
 	}
 	in := make(chan int, 5)
-	out := Map(in, counter).(chan string)
+	out := Map(counter, in).(chan string)
 
 	go func() {
 		in <- 7
@@ -39,7 +39,7 @@ func TestMapSlice(t *testing.T) {
 		return fmt.Sprint(count)
 	}
 	in := []int{7, 4, 5}
-	out := Map(in, counter).([]string)
+	out := Map(counter, in).([]string)
 
 	for i := 1; i <= 3; i++ {
 		if result := out[i-1]; result != fmt.Sprint(i) {
@@ -59,7 +59,7 @@ func TestMapMap(t *testing.T) {
 		4: "b",
 		5: "c",
 	}
-	out := Map(in, counter).([]string)
+	out := Map(counter, in).([]string)
 
 	for i := 1; i <= 3; i++ {
 		if result := out[i-1]; result != fmt.Sprint(i) {

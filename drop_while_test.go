@@ -10,9 +10,9 @@ import (
 
 func TestDropWhilePipe(t *testing.T) {
 	in := make(chan int, 5)
-	out := DropWhile(in, func(item int) bool {
+	out := DropWhile(func(item int) bool {
 		return item < 3
-	}).(chan int)
+	}, in).(chan int)
 
 	in <- 1
 	in <- 2

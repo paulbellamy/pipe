@@ -11,7 +11,7 @@ import (
 // Accept items from the input pipe until the given function returns false.
 // After that, all input messages will be ignored and the output channel will
 // be closed.
-func TakeWhile(input interface{}, fn interface{}) interface{} {
+func TakeWhile(fn, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)

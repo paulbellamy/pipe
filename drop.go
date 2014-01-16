@@ -10,21 +10,21 @@ import (
 
 // Drop a given number of items from the input pipe. After that number has been
 // dropped, the rest are passed straight through.
-func Drop(input interface{}, num int) interface{} {
+func Drop(num int, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 
 	switch inputValue.Kind() {
 	case reflect.Chan:
-		return dropChan(inputValue, num)
+		return dropChan(num, inputValue)
 	case reflect.Array:
-		return dropSlice(inputValue, num)
+		return dropSlice(num, inputValue)
 	case reflect.Slice:
-		return dropSlice(inputValue, num)
+		return dropSlice(num, inputValue)
 	}
 	panic("Drop called on invalid type")
 }
 
-func dropChan(input reflect.Value, num int) interface{} {
+func dropChan(num int, input reflect.Value) interface{} {
 	inputType := input.Type()
 
 	output := reflect.MakeChan(inputType, 0)
@@ -54,7 +54,7 @@ func dropChan(input reflect.Value, num int) interface{} {
 	return output.Interface()
 }
 
-func dropSlice(input reflect.Value, num int) interface{} {
+func dropSlice(num int, input reflect.Value) interface{} {
 	if num > input.Len() {
 		return input.Slice(0, 0).Interface()
 	} else {

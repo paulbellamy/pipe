@@ -14,7 +14,7 @@ func TestFilter(t *testing.T) {
 	}
 
 	in := make(chan int)
-	out := Filter(Filter(in, mod2), mod2).(chan int)
+	out := Filter(mod2, Filter(mod2, in)).(chan int)
 
 	in <- 7
 	in <- 4

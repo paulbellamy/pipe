@@ -11,9 +11,9 @@ import (
 func TestTakeWhileFuncPipe(t *testing.T) {
 	take := true
 	in := make(chan int, 5)
-	out := TakeWhile(in, func(item int) bool {
+	out := TakeWhile(func(item int) bool {
 		return take
-	}).(chan int)
+	}, in).(chan int)
 
 	in <- 7
 	in <- 4

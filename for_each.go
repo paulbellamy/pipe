@@ -10,7 +10,7 @@ import (
 
 // Execute a function for each item (without modifying the item). Useful for
 // monitoring, logging, or causing some side-effect.
-func ForEach(input interface{}, fn interface{}) interface{} {
+func ForEach(fn, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)

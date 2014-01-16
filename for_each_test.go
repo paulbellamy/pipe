@@ -15,7 +15,7 @@ func TestForEach(t *testing.T) {
 	counter := func(item int) {
 		count++
 	}
-	out := ForEach(ForEach(in, counter), counter).(chan int)
+	out := ForEach(counter, ForEach(counter, in)).(chan int)
 
 	in <- 5
 	in <- 6

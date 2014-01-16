@@ -10,9 +10,9 @@ import (
 
 func TestReducePipe(t *testing.T) {
 	in := make(chan int, 5)
-	out := Reduce(in, 0, func(sum, item int) int {
+	out := Reduce(func(sum, item int) int {
 		return sum + item
-	}).(chan int)
+	}, 0, in).(chan int)
 
 	in <- 5
 	in <- 10

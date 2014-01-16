@@ -10,7 +10,7 @@ import (
 
 // Drop the items from the input pipe until the given function returns true.
 // After that , the rest are passed straight through.
-func DropWhile(input interface{}, fn interface{}) interface{} {
+func DropWhile(fn, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)

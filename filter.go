@@ -10,7 +10,7 @@ import (
 
 // Apply a filtering function to a channel, which will only pass through items
 // when the filter func returns true.
-func Filter(input interface{}, fn interface{}) interface{} {
+func Filter(fn, input interface{}) interface{} {
 	inputValue := reflect.ValueOf(input)
 	inputType := inputValue.Type()
 	fnValue := reflect.ValueOf(fn)
