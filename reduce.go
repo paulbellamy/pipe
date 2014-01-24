@@ -5,39 +5,22 @@
 package pipe
 
 import (
+	"fmt"
 	"reflect"
 )
 
-// Accumulate the result of the reduce function being called on each item, then
-// when the input channel is closed, pass the result to the output channel
-func Reduce(fn, initial, input interface{}) interface{} {
+func checkReduceFuncType(fn, initial, input interface{}) {
+	fnType := reflect.TypeOf(fn)
 	initialType := reflect.TypeOf(initial)
-	inputValue := reflect.ValueOf(input)
-	inputType := inputValue.Type()
-	fnValue := reflect.ValueOf(fn)
+	inputType := reflect.TypeOf(input)
 
-	signature := &functionSignature{
-		[]reflect.Type{initialType, inputType.Elem()},
-		[]reflect.Type{initialType},
+	valid := fnType.NumOut() == 1 &&
+		fnType.NumIn() == 2 &&
+		initialType.ConvertibleTo(fnType.In(0)) &&
+		inputType.Elem().ConvertibleTo(fnType.In(1)) &&
+		fnType.Out(0).ConvertibleTo(fnType.In(0))
+
+	if !valid {
+		panic(fmt.Sprintf("Reduce fn must be of type func(%v, %v) T, but was %v", initialType, inputType.Elem(), fnType))
 	}
-	signature.Check("Reduce fn", fn)
-
-	outputType := reflect.ChanOf(reflect.BothDir, initialType)
-	output := reflect.MakeChan(outputType, 0)
-
-	result := reflect.ValueOf(initial)
-	go func() {
-		for {
-			item, ok := inputValue.Recv()
-			if !ok {
-				break
-			}
-
-			result = fnValue.Call([]reflect.Value{result, item})[0]
-		}
-		// Input was closed, send the result
-		output.Send(result)
-		output.Close()
-	}()
-	return output.Interface()
 }

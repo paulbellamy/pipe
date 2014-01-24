@@ -4,7 +4,8 @@ import (
   "reflect"
 )
 
-// Pass through the result of the map function for each item
+// MapChan is of type: func(fn func(T) U, input chan T) chan U.
+// It returns a chan which receives fn(item) for each item in input.
 func MapChan(fn, input interface{}) interface{} {
 	checkMapFuncType(fn, input)
 
