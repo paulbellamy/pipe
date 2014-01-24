@@ -18,11 +18,11 @@ func TestReduceSlice(t *testing.T) {
 	}
 }
 
-func appendToString(str string, item fmt.Stringer) string {
-  return fmt.Sprintf("%s%s", str, item.String())
-}
-
 func TestReduceSliceTypeCoercion(t *testing.T) {
+  appendToString := func(str string, item fmt.Stringer) string {
+    return fmt.Sprintf("%s%s", str, item.String())
+  }
+
 	in := []testStringer{1,2,3}
 	out := ReduceSlice(appendToString, "a", in).(string)
 
