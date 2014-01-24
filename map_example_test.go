@@ -1,8 +1,7 @@
-package main
+package pipe
 
 import (
 	"fmt"
-	. "pipe"
 )
 
 type place struct {
@@ -21,11 +20,18 @@ func statusByPopulation(p place) string {
 	}
 }
 
-func main() {
+func ExampleMapSlice() {
+  // Declare a slice of some things
 	places := []place{
 		{"Grantchester", 552},
 		{"Cambridge", 117900},
 		{"Prague", 1188126},
 	}
-	fmt.Println(Map(statusByPopulation, places))
+
+	sizes := MapSlice(statusByPopulation, places).([]string)
+
+	fmt.Println(sizes)
+
+	// Output:
+	// [Village Town City]
 }
