@@ -42,6 +42,7 @@ func TestMapChanTypeCoercion(t *testing.T) {
 		in <- 4
 		in <- 5
 	}()
+
 	for i := 1; i <= 3; i++ {
 		if result := <-out; result != fmt.Sprint(i) {
 			t.Fatal("MapChan received ", i, " items but output ", result)
