@@ -5,6 +5,7 @@
 package pipe
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -36,4 +37,20 @@ func Filter(fn, input interface{}) interface{} {
 		output.Close()
 	}()
 	return output.Interface()
+}
+
+var boolType = reflect.TypeOf(true)
+
+func checkFilterFuncType(fn, input interface{}) {
+	fnType := reflect.TypeOf(fn)
+	inputType := reflect.TypeOf(input)
+
+	valid := fnType.NumOut() == 1 &&
+		fnType.NumIn() == 1 &&
+		inputType.Elem().ConvertibleTo(fnType.In(0)) &&
+		fnType.Out(0).ConvertibleTo(boolType)
+
+	if !valid {
+		panic(fmt.Sprintf("Filter fn must be of type func(%v) bool, but was %v", inputType.Elem(), fnType))
+	}
 }
