@@ -8,3 +8,4 @@
 * Add Iterate, and Repeatedly
 * Test type coercion
   * Handle variadic functions
+  * Check input types match expected (chan/slice/etc)
