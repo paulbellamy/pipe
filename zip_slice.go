@@ -24,7 +24,6 @@ func ZipSlice(input interface{}, others ...interface{}) interface{} {
 		}
 	}
 
-	Len := func(x reflect.Value) int { return x.Len() }
 	outputLength := inputValues[0].Len()
 	for i := 0; i < len(inputValues); i++ {
 		length := inputValues[i].Len()
@@ -33,14 +32,16 @@ func ZipSlice(input interface{}, others ...interface{}) interface{} {
 		}
 	}
 
-	zippedType := reflect.SliceOf(inputType.Elem())
-	output := reflect.MakeSlice(zippedType, 0, outputLength)
+	elemType := inputType.Elem()
+	zippedType := reflect.SliceOf(elemType)
+	outputType := reflect.SliceOf(zippedType)
+	output := reflect.MakeSlice(outputType, 0, outputLength)
 
 	for i := 0; i < outputLength; i++ {
 		zipped := reflect.MakeSlice(zippedType, 0, len(inputValues))
 
 		for j := 0; j < len(inputValues); j++ {
-			zipped = reflect.Append(zipped, inputValues[i].Index(j))
+			zipped = reflect.Append(zipped, inputValues[j].Index(i))
 		}
 
 		output = reflect.Append(output, zipped)
