@@ -5,6 +5,8 @@ import (
 )
 
 func RepeatedlyChan(fn interface{}) interface{} {
+	checkRepeatedlyFuncType(fn)
+
 	fnValue := reflect.ValueOf(fn)
 
 	outputType := reflect.ChanOf(reflect.BothDir, fnValue.Type().Out(0))

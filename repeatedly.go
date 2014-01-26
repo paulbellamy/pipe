@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func checkRepatedlyFuncType(fn interface{}) {
+func checkRepeatedlyFuncType(fn interface{}) {
 	fnType := reflect.TypeOf(fn)
 
 	valid := fnType.NumOut() == 1 && fnType.NumIn() == 0
