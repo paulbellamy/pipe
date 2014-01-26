@@ -1,10 +1,9 @@
 # TODO
 
-* Update readme
 * Replace master branch
 * Try it in some small example programs. (find examples of functional usage)
 * Add others
-  * Flatten
+  * MapCat
   * Min? Max? (How to do comparators?)
 * Test type coercion
   * Handle variadic functions
