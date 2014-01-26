@@ -5,8 +5,7 @@
 * Try it in some small example programs. (find examples of functional usage)
 * Add support for slices/Maps/etc...
 * Add others
-  * Iterate? Repeatedly?
-  * Min? Max?
+  * Min? Max? (How to do comparators?)
 * Test type coercion
   * Handle variadic functions
   * Check input types match expected (chan/slice/etc)
