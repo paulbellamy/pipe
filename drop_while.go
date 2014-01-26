@@ -1,55 +1,20 @@
-// Copyright 2014 Paul Bellamy. All rights reserved.
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file.
-
 package pipe
 
 import (
+	"fmt"
 	"reflect"
 )
 
-// Drop the items from the input pipe until the given function returns true.
-// After that , the rest are passed straight through.
-func DropWhile(fn, input interface{}) interface{} {
-	inputValue := reflect.ValueOf(input)
-	inputType := inputValue.Type()
-	fnValue := reflect.ValueOf(fn)
+func checkDropWhileFuncType(fn, input interface{}) {
+	fnType := reflect.TypeOf(fn)
+	inputType := reflect.TypeOf(input)
 
-	signature := &functionSignature{
-		[]reflect.Type{inputType.Elem()},
-		[]reflect.Type{reflect.TypeOf(false)},
+	valid := fnType.NumOut() == 1 &&
+		fnType.NumIn() == 1 &&
+		inputType.Elem().ConvertibleTo(fnType.In(0)) &&
+		fnType.Out(0).ConvertibleTo(boolType)
+
+	if !valid {
+		panic(fmt.Sprintf("DropWhile fn must be of type func(%v) bool, but was %v", inputType.Elem(), fnType))
 	}
-	signature.Check("DropWhile fn", fn)
-
-	output := reflect.MakeChan(inputType, 0)
-	go func() {
-		for {
-			item, ok := inputValue.Recv()
-			if !ok {
-				// input closed, abort
-				output.Close()
-				return
-			}
-
-			// check if we should output this
-			if !fnValue.Call([]reflect.Value{item})[0].Bool() {
-				output.Send(item)
-				break
-			}
-		}
-
-		// send any messages after this
-		for {
-			item, ok := inputValue.Recv()
-			if !ok {
-				break
-			}
-
-			output.Send(item)
-		}
-
-		output.Close()
-
-	}()
-	return output.Interface()
 }
