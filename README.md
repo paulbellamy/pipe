@@ -1,6 +1,6 @@
 # pipe
 
-Concurrent, sequential, transformations along Golang channels.
+All the usual functional ways to work with sequences of data in Go.
 
 ## Usage
 
@@ -8,174 +8,24 @@ Concurrent, sequential, transformations along Golang channels.
 import "github.com/paulbellamy/pipe"
 ```
 
-## Interface
+## Why
 
-Pipes are created with the ```NewPipe(input, output chan interface{}) *Pipe``` method.
+Because a bit of functional programming can make code a lot more readable and expressive.
 
-After that there are several chaining methods to build up the processing. Once the pipe is prepared, simply pipe items into the input channel and retrieve the results from the output channel.
+## Should I Use This?
 
-Be careful, because some of the transformations (e.g. Reduce, Drop) result in channels which are 'leaky'. Meaning that one item in may not equal one item out.
+It depends. Are you ok with sacrificing some of Go's static-type-checking and compile-time safety for more expressiveness?
 
-For example, to count the number of items passing through a channel:
+## Documentation
 
-```Go
-// Define our counter
-counter := 0
-counter_func := func(item interface{}) {
-  counter++
-}
+* [API Docs](http://godoc.org/github.com/paulbellamy/pipe)
 
-// Set up our pipe
-input := make(chan interface{}, 5)
+## Contributing
 
-// Add our counter
-output := ForEach(input, counter_func)
+Contributions are welcome via [pull requests](http://github.com/paulbellamy/pipe/issues).
 
-// Now we send some items
-input <- true
-input <- true
-input <- true
+## License
 
-// Check how many have gone through
-fmt.Println(counter) // prints "3"
-```
+Copyright © 2014 Paul Bellamy
 
-  You can, of course, modify the items flowing through the pipe:
-
-```Go
-// Set up our pipe
-input := make(chan interface{}, 5)
-output := NewPipe(input).
-  Filter(func(item interface{}) bool {
-    // Only allow ints divisible by 5
-    return (item.(int) % 5) == 0
-  }).
-  Map(func(item interface{}) interface{} {
-    // Add 2 to each
-    return item.(int) + 2
-  }).
-  Output
-
-// Now we send some items
-input <- 1 // will be dropped
-input <- 5 // will come through as 7
-```
-
-## Available Transformations
-
-* Filter(func(item interface{}) bool)
-* ForEach(func(item interface{}))
-* Map(func(item interface{}) interface{})
-* Reduce(initial interface{}, func(accumulator interface{}, item interface{}) interface{})
-* Drop(n int64)
-* DropWhile(func(item interface{}) bool)
-* Take(n int64)
-* TakeWhile(func(item interface{}) bool)
-* Zip(other chan interface{})
-
-## Godoc
-
-```
-func Filter(input chan interface{}, fn FilterFunc) chan interface{}
-    Apply a filtering function to a channel, which will only pass through
-    items when the filter func returns true.
-
-func ForEach(input chan interface{}, fn ForEachFunc) chan interface{}
-    Execute a function for each item (without modifying the item). Useful
-    for monitoring, logging, or causing some side-effect.
-
-func Map(input chan interface{}, fn MapFunc) chan interface{}
-    Pass through the result of the map function for each item
-
-func Reduce(input chan interface{}, initial interface{}, fn ReduceFunc) chan interface{}
-    Accumulate the result of the reduce function being called on each item,
-    then when the input channel is closed, pass the result to the output
-    channel
-
-func Drop(input chan interface{}, num int64) chan interface{}
-    Drop a given number of items from the input pipe. After that number has
-    been dropped, the rest are passed straight through.
-
-func DropWhile(input chan interface{}, fn DropWhileFunc) chan interface{}
-    Drop the items from the input pipe until the given function returns
-    true. After that , the rest are passed straight through.
-
-func Take(input chan interface{}, num int64) chan interface{}
-    Accept only the given number of items from the input pipe. After that
-    number has been received, all input messages will be ignored and the
-    output channel will be closed.
-
-func TakeWhile(input chan interface{}, fn TakeWhileFunc) chan interface{}
-    Accept items from the input pipe until the given function returns false.
-    After that, all input messages will be ignored and the output channel
-    will be closed.
-
-func Zip(input chan interface{}, other chan interface{}) chan interface{}
-    Group each message from the input channel with it's corresponding
-    message from the other channel. This will block on the first channel
-    until it receives a message, then block on the second until it gets one
-    from there. At that point an array containing both will be sent to the
-    output channel.
-
-    For example, if channel a is being zipped with channel b, and output on
-    channel c:
-
-	a <- 1
-	b <- 2
-	result := <-c // result will equal []interface{}{1, 2}
-
-
-TYPES
-
-type FilterFunc func(item interface{}) bool
-
-type ForEachFunc func(item interface{})
-    A function which foreachs
-
-type MapFunc func(item interface{}) interface{}
-
-type Pipe struct {
-    Output chan interface{}
-}
-    A Pipe is a set of transforms being applied along the channel. We use
-    this as a helper while constructing a chained pipe. It lets us use a
-    nicer syntax.
-
-func NewPipe(input chan interface{}) *Pipe
-    Return a new Pipe object which echoes input to output
-
-func (p *Pipe) Filter(fn FilterFunc) *Pipe
-    Helper for chained construction
-
-func (p *Pipe) ForEach(fn ForEachFunc) *Pipe
-    Execute a function for each item (without modifying the item)
-
-func (p *Pipe) Map(fn MapFunc) *Pipe
-    Helper for chained construction
-
-func (p *Pipe) Reduce(initial interface{}, fn ReduceFunc) *Pipe
-    Accumulate the result of the reduce function being called on each item,
-    then when the input channel is closed, pass the result to the output
-    channel
-
-func (p *Pipe) Drop(num int64) *Pipe
-    Helper for chained constructor
-
-func (p *Pipe) DropWhile(fn DropWhileFunc) *Pipe
-    Helper function for chained constructor
-
-func (p *Pipe) Take(num int64) *Pipe
-    Helper for the chained constructor
-
-func (p *Pipe) TakeWhile(fn TakeWhileFunc) *Pipe
-    Helper for the chained constructor
-
-func (p *Pipe) Zip(other chan interface{}) *Pipe
-    Helper for the chained constructor
-
-type ReduceFunc func(result, item interface{}) interface{}
-
-type DropWhileFunc func(item interface{}) bool
-
-type TakeWhileFunc func(item interface{}) bool
-```
+Released under the [MIT License](http://www.opensource.org/licenses/MIT).
