@@ -5,9 +5,9 @@ import (
 	"reflect"
 )
 
-// ZipChan is of type: func(input chan T, other chan T) chan []T.
-// Group each message from the input channel with it's corresponding message
-// from the other channel. This will block on the first channel until it
+// ZipChan is of type: func(input chan T, others ...chan T) chan []T.
+// Group each message from the input channel with it's corresponding message(s)
+// from the other channel(s). This will block on the first channel until it
 // receives a message, then block on the second until it gets one from there.
 // At that point an array containing both will be sent to the output channel.
 func ZipChan(input interface{}, others ...interface{}) interface{} {
