@@ -14,11 +14,11 @@ func checkForEachFuncType(fn, input interface{}) {
 	inputType := reflect.TypeOf(input)
 
 	valid := fnType.NumIn() == 1
-  if fnType.IsVariadic() {
-    valid = valid && inputType.Elem().ConvertibleTo(fnType.In(0).Elem())
-  } else {
-    valid = valid && inputType.Elem().ConvertibleTo(fnType.In(0))
-  }
+	if fnType.IsVariadic() {
+		valid = valid && inputType.Elem().ConvertibleTo(fnType.In(0).Elem())
+	} else {
+		valid = valid && inputType.Elem().ConvertibleTo(fnType.In(0))
+	}
 
 	if !valid {
 		panic(fmt.Sprintf("ForEach fn must be of type func(%v), but was %v", inputType.Elem(), fnType))

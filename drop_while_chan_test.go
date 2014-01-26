@@ -13,7 +13,7 @@ func TestDropWhileChan(t *testing.T) {
 	in <- 1
 	in <- 2
 	in <- 3
-  in <- 2
+	in <- 2
 
 	result := <-out
 	if result != 3 {

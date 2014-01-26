@@ -1,7 +1,7 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // MapChan is of type: func(fn func(T) U, input chan T) chan U.
@@ -15,11 +15,11 @@ func MapChan(fn, input interface{}) interface{} {
 	outputType := reflect.ChanOf(reflect.BothDir, fnValue.Type().Out(0))
 	output := reflect.MakeChan(outputType, 0)
 	go func() {
-    for {
-      value, ok := inputValue.Recv()
-      if !ok {
-        break
-      }
+		for {
+			value, ok := inputValue.Recv()
+			if !ok {
+				break
+			}
 
 			output.Send(fnValue.Call([]reflect.Value{value})[0])
 		}

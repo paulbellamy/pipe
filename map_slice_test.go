@@ -1,8 +1,8 @@
 package pipe
 
 import (
-  "fmt"
-  "testing"
+	"fmt"
+	"testing"
 )
 
 func TestMapSlice(t *testing.T) {

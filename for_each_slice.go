@@ -9,14 +9,14 @@ import (
 // for monitoring, logging, or causing some side-effect. Returns the
 // original input.
 func ForEachSlice(fn, input interface{}) interface{} {
-  checkForEachFuncType(fn, input)
+	checkForEachFuncType(fn, input)
 
 	fnValue := reflect.ValueOf(fn)
 	inputValue := reflect.ValueOf(input)
 
-  for i := 0; i < inputValue.Len(); i++ {
-    fnValue.Call([]reflect.Value{inputValue.Index(i)})
-  }
+	for i := 0; i < inputValue.Len(); i++ {
+		fnValue.Call([]reflect.Value{inputValue.Index(i)})
+	}
 
-  return input
+	return input
 }

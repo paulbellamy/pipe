@@ -1,7 +1,7 @@
 package pipe
 
 import (
-  "reflect"
+	"reflect"
 )
 
 // ReduceChan is of type: func(fn func(accumulator U, item T) U, initial U, input chan T) U.
@@ -14,13 +14,13 @@ func ReduceChan(fn, initial, input interface{}) interface{} {
 	fnValue := reflect.ValueOf(fn)
 
 	result := reflect.ValueOf(initial)
-  for {
-    item, ok := inputValue.Recv()
-    if !ok {
-      break
-    }
+	for {
+		item, ok := inputValue.Recv()
+		if !ok {
+			break
+		}
 
-    result = fnValue.Call([]reflect.Value{result, item})[0]
-  }
+		result = fnValue.Call([]reflect.Value{result, item})[0]
+	}
 	return result.Interface()
 }

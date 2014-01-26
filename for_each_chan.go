@@ -8,7 +8,7 @@ import (
 // Execute a function for each item (without modifying the item). Useful
 // for monitoring, logging, or causing some side-effect. Returns a channel receiving the input.
 func ForEachChan(fn, input interface{}) interface{} {
-  checkForEachFuncType(fn, input)
+	checkForEachFuncType(fn, input)
 
 	fnValue := reflect.ValueOf(fn)
 	inputValue := reflect.ValueOf(input)

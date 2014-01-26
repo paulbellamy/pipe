@@ -12,10 +12,10 @@ func ExampleDropChan() {
 		in <- i
 	}
 
-  fmt.Println(<-out)
-  fmt.Println(<-out)
+	fmt.Println(<-out)
+	fmt.Println(<-out)
 
-  // Output:
-  // 3
-  // 4
+	// Output:
+	// 3
+	// 4
 }

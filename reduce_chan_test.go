@@ -23,9 +23,9 @@ func TestReduceChan(t *testing.T) {
 }
 
 func TestReduceChanTypeCoercion(t *testing.T) {
-  appendToString := func(str string, item fmt.Stringer) string {
-    return fmt.Sprintf("%s%s", str, item.String())
-  }
+	appendToString := func(str string, item fmt.Stringer) string {
+		return fmt.Sprintf("%s%s", str, item.String())
+	}
 
 	in := make(chan testStringer, 5)
 

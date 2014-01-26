@@ -19,19 +19,19 @@ func FilterChan(fn, input interface{}) interface{} {
 	}
 
 	output := reflect.MakeChan(inputValue.Type(), 0)
-  go func() {
-    for {
-      item, ok := inputValue.Recv()
-      if !ok {
-        break
-      }
+	go func() {
+		for {
+			item, ok := inputValue.Recv()
+			if !ok {
+				break
+			}
 
-      if fnValue.Call([]reflect.Value{item})[0].Bool() {
-        output.Send(item)
-      }
-    }
-    output.Close()
-  }()
+			if fnValue.Call([]reflect.Value{item})[0].Bool() {
+				output.Send(item)
+			}
+		}
+		output.Close()
+	}()
 
-  return output.Interface()
+	return output.Interface()
 }

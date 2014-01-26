@@ -23,18 +23,18 @@ func ExampleFilterChan() {
 		numbers <- 8
 		numbers <- 9
 		numbers <- 10
-    close(numbers)
+		close(numbers)
 	}()
 
 	// Print each output
-  for result := range out {
-    fmt.Println(result)
-  }
+	for result := range out {
+		fmt.Println(result)
+	}
 
 	// Output:
 	// 2
-  // 4
-  // 6
-  // 8
-  // 10
+	// 4
+	// 6
+	// 8
+	// 10
 }

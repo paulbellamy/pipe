@@ -16,22 +16,22 @@ func TestFilterChan(t *testing.T) {
 	go func() {
 		in <- 7
 		in <- 4
-    in <- 5
-    in <- 2
-    close(in)
+		in <- 5
+		in <- 2
+		close(in)
 	}()
 
-  if result := <-out; result != 4 {
-    t.Fatal("FilterChan(even, in) received 7,4,5,2, but output ", result)
-  }
+	if result := <-out; result != 4 {
+		t.Fatal("FilterChan(even, in) received 7,4,5,2, but output ", result)
+	}
 
-  if result := <-out; result != 2 {
-    t.Fatal("FilterChan(even, in) received 7,4,5,2, but output ", result)
-  }
+	if result := <-out; result != 2 {
+		t.Fatal("FilterChan(even, in) received 7,4,5,2, but output ", result)
+	}
 
-  if _, ok := <-out; ok {
-    t.Fatal("FilterChan(even, in) wasn't closed after in was closed")
-  }
+	if _, ok := <-out; ok {
+		t.Fatal("FilterChan(even, in) wasn't closed after in was closed")
+	}
 }
 
 func TestFilterChanTypeCoercion(t *testing.T) {
@@ -42,14 +42,14 @@ func TestFilterChanTypeCoercion(t *testing.T) {
 	in := make(chan testStringer)
 	out := FilterChan(long_enough, in).(chan testStringer)
 
-  go func() {
-    in <- 7
-    in <- 42
-  }()
+	go func() {
+		in <- 7
+		in <- 42
+	}()
 
-  if result := <-out; result != 42 {
+	if result := <-out; result != 42 {
 		t.Fatal("FilterChan(long_enough, in) received 7 and 42 but output ", out)
 	}
 
-  close(in)
+	close(in)
 }

@@ -1,8 +1,8 @@
 package pipe
 
 import (
-  "fmt"
-  "reflect"
+	"fmt"
+	"reflect"
 )
 
 // MapSlice is of type: func(fn func(T) U, input []T) []U.
@@ -10,12 +10,12 @@ import (
 func MapSlice(fn, input interface{}) interface{} {
 	checkMapFuncType(fn, input)
 
-  inputValue := reflect.ValueOf(input)
-  fnValue := reflect.ValueOf(fn)
+	inputValue := reflect.ValueOf(input)
+	fnValue := reflect.ValueOf(fn)
 
 	if inputValue.Kind() != reflect.Slice &&
 		inputValue.Kind() != reflect.Array {
-      panic(fmt.Sprintf("MapSlice called on invalid type: %s", inputValue.Type()))
+		panic(fmt.Sprintf("MapSlice called on invalid type: %s", inputValue.Type()))
 	}
 
 	outputType := reflect.SliceOf(fnValue.Type().Out(0))

@@ -21,7 +21,7 @@ func statusByPopulation(p place) string {
 }
 
 func ExampleMapSlice() {
-  // Declare a slice of some things
+	// Declare a slice of some things
 	places := []place{
 		{"Grantchester", 552},
 		{"Cambridge", 117900},

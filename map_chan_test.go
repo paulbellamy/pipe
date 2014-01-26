@@ -1,8 +1,8 @@
 package pipe
 
 import (
-  "fmt"
-  "testing"
+	"fmt"
+	"testing"
 )
 
 func TestMapChan(t *testing.T) {

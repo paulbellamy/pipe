@@ -8,10 +8,10 @@ func ExampleMapChan() {
 	// Declare a chan of some things
 	numbers := make(chan int)
 
-  // function to apply
-  square := func(x int) int {
-    return x * x
-  }
+	// function to apply
+	square := func(x int) int {
+		return x * x
+	}
 
 	// Create a new chan which applies a function to the original
 	squares := MapChan(square, numbers).(chan int)

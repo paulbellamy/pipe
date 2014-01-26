@@ -9,6 +9,7 @@ import (
 )
 
 type testStringer int
+
 func (t testStringer) String() string {
-  return fmt.Sprintf("%d", t)
+	return fmt.Sprintf("%d", t)
 }
