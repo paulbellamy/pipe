@@ -1,27 +1,26 @@
-// Copyright 2014 Paul Bellamy. All rights reserved.
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file.
-
 package pipe
 
 import (
 	"testing"
 )
 
-func TestZipPipe(t *testing.T) {
+func TestZipChan(t *testing.T) {
 	other := make(chan int, 5)
 	in := make(chan int, 5)
-	out := Zip(in, other).(chan []int)
+	out := ZipChan(in, other).(chan []int)
 
 	in <- 5
 	in <- 10
 	in <- 20
 	other <- 6
 	other <- 11
+	close(other)
 
-	for i := 1; i <= 2; i++ {
-		result := <-out
-		expected := []int{i * 5, (i * 5) + 1}
+	count := 0
+	for result := range out {
+		count++
+
+		expected := []int{count * 5, (count * 5) + 1}
 		if len(result) != len(expected) {
 			t.Fatal("expected channel output to match", expected, "but got", result)
 		}
@@ -31,5 +30,9 @@ func TestZipPipe(t *testing.T) {
 				t.Fatal("expected channel output to match", expected, "but got", result)
 			}
 		}
+	}
+
+	if count != 2 {
+		t.Fatal("expected output to have 2 elements, but there were", count)
 	}
 }
