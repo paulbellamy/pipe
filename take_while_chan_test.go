@@ -1,17 +1,13 @@
-// Copyright 2014 Paul Bellamy. All rights reserved.
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file.
-
 package pipe
 
 import (
 	"testing"
 )
 
-func TestTakeWhileFuncPipe(t *testing.T) {
+func TestTakeWhileChan(t *testing.T) {
 	take := true
 	in := make(chan int, 5)
-	out := TakeWhile(func(item int) bool {
+	out := TakeWhileChan(func(item int) bool {
 		return take
 	}, in).(chan int)
 
@@ -19,6 +15,7 @@ func TestTakeWhileFuncPipe(t *testing.T) {
 	in <- 4
 	take = false
 	in <- 5
+	in <- 6
 
 	<-out
 	<-out

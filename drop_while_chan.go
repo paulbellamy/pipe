@@ -9,7 +9,7 @@ import (
 // Drop the items from the input chan until the given function returns true.
 // After that, the rest are passed straight through.
 func DropWhileChan(fn, input interface{}) interface{} {
-	checkFilterFuncType(fn, input)
+	checkDropWhileFuncType(fn, input)
 
 	inputValue := reflect.ValueOf(input)
 	fnValue := reflect.ValueOf(fn)
