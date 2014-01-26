@@ -14,3 +14,7 @@ func TestTakeWhileSlice(t *testing.T) {
 		t.Fatal("takewhile should have returned [7 4], but returned", out)
 	}
 }
+
+func TestTakeWhileSliceTypeCoerciton(t *testing.T) {
+	t.Fatal("Not Implemented")
+}

@@ -25,3 +25,7 @@ func TestTakeWhileChan(t *testing.T) {
 
 	close(in)
 }
+
+func TestTakeWhileChanTypeCoerciton(t *testing.T) {
+	t.Fatal("Not Implemented")
+}
