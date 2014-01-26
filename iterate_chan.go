@@ -4,6 +4,11 @@ import (
 	"reflect"
 )
 
+// IterateChan is of type: func(fn func(T) T, initialArgs ...T) chan T.
+// Returns a channel with the values of x, fn(x), fn(fn(x)), etc... fn can take
+// multiple arguments, and return multiple values, but the types and counts of
+// arguments and return values must match. Only the first return value of each
+// call to fn will be printed.
 func IterateChan(fn interface{}, initialArgs ...interface{}) interface{} {
 	fnValue := reflect.ValueOf(fn)
 	initialValues := MapSlice(reflect.ValueOf, initialArgs).([]reflect.Value)

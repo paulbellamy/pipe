@@ -4,6 +4,9 @@ import (
 	"reflect"
 )
 
+// IterateChan is of type: func(fn func() T) chan T.
+// Take some function 'fn' (presumably with some side-effect). It is repeatedly
+// called, and the return values put onto the returned channel.
 func RepeatedlyChan(fn interface{}) interface{} {
 	checkRepeatedlyFuncType(fn)
 
