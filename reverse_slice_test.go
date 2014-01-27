@@ -10,9 +10,9 @@ func TestReverseSlice(t *testing.T) {
 
 	expected := []int{5, 6, 7}
 
-	expect(t, len(result), len(expected))
+	assertEqual(t, len(result), len(expected))
 	for i := 0; i < 3; i++ {
-		expect(t, result[i], expected[i])
+		assertEqual(t, result[i], expected[i])
 	}
 
 	/*

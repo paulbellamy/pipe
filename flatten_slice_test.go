@@ -15,7 +15,7 @@ func TestFlattenSlice(t *testing.T) {
 	}
 
 	for i := 0; i < len(expected); i++ {
-		expect(t, result[i], expected[i])
+		assertEqual(t, result[i], expected[i])
 	}
 }
 
@@ -30,6 +30,6 @@ func TestFlattenSliceWhenAlreadyFlat(t *testing.T) {
 	}
 
 	for i := 0; i < len(expected); i++ {
-		expect(t, result[i], expected[i])
+		assertEqual(t, result[i], expected[i])
 	}
 }

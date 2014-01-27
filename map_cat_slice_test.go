@@ -13,8 +13,8 @@ func TestMapCatSlice(t *testing.T) {
 	result := MapCatSlice(printer, in).([]string)
 
 	expected := []string{"7", "007", "4", "004", "5", "005"}
-	expect(t, len(result), len(expected))
+	assertEqual(t, len(result), len(expected))
 	for i := 0; i < len(result); i++ {
-		expect(t, result[i], expected[i])
+		assertEqual(t, result[i], expected[i])
 	}
 }

@@ -13,8 +13,8 @@ func TestOntoChan(t *testing.T) {
 		result = append(result, x)
 	}
 
-	expect(t, len(result), len(in))
+	assertEqual(t, len(result), len(in))
 	for i := 0; i < len(result); i++ {
-		expect(t, result[i], in[i])
+		assertEqual(t, result[i], in[i])
 	}
 }

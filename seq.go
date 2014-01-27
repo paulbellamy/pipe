@@ -16,20 +16,20 @@ var seqType = reflect.TypeOf((*Seq)(nil)).Elem()
 // Create a new Seq. Supports Chans and Slices.
 func New(source interface{}) Seq {
 	sourceValue := ensureValue(source)
-  if sourceValue.Type().Implements(seqType) {
-    var s Seq
-    reflect.ValueOf(s).Set(sourceValue)
-    return s
-  }
+	if sourceValue.Type().Implements(seqType) {
+		var s Seq
+		reflect.ValueOf(s).Set(sourceValue)
+		return s
+	}
 
 	switch sourceValue.Type().Kind() {
 	case reflect.Chan:
 		return FromChan(sourceValue)
-  case reflect.Slice:
+	case reflect.Slice:
 		return FromSlice(sourceValue)
-  case reflect.Array:
+	case reflect.Array:
 		return FromSlice(sourceValue)
 	default:
-    panic("seq.New can only be called on Seq, slices, or chans.")
+		panic("seq.New can only be called on Seq, slices, or chans.")
 	}
 }

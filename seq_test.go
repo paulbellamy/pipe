@@ -37,5 +37,5 @@ func TestSeqAcceptsReflectValue(t *testing.T) {
 }
 
 func TestSeqPanicsOnUnknownType(t *testing.T) {
-  t.Fatal("Not tested")
+	t.Fatal("Not tested")
 }
