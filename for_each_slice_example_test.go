@@ -8,7 +8,7 @@ func ExampleForEachSlice() {
 	// Declare a slice of some things
 	places := []string{"Grantchester", "Cambridge", "Prague"}
 
-	_ = ForEachSlice(fmt.Println, places).([]string)
+	ForEachSlice(fmt.Println, places)
 
 	// Output:
 	// Grantchester

@@ -4,11 +4,9 @@ import (
 	"reflect"
 )
 
-// ForEachSlice is of type: func(fn func(T), input []T) []T.
-// Execute a function for each item (without modifying the item). Useful
-// for monitoring, logging, or causing some side-effect. Returns the
-// original input.
-func ForEachSlice(fn, input interface{}) interface{} {
+// ForEachSlice is of type: func(fn func(T), input []T).
+// Execute a function for each item. Returns nothing.
+func ForEachSlice(fn, input interface{}) {
 	checkForEachFuncType(fn, input)
 
 	fnValue := reflect.ValueOf(fn)
@@ -17,6 +15,4 @@ func ForEachSlice(fn, input interface{}) interface{} {
 	for i := 0; i < inputValue.Len(); i++ {
 		fnValue.Call([]reflect.Value{inputValue.Index(i)})
 	}
-
-	return input
 }

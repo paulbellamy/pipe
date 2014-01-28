@@ -6,17 +6,14 @@ import (
 
 func ExampleForEachChan() {
 	// Declare a chan of some things
-	places := make(chan string, 3)
-
-	processed := ForEachChan(fmt.Println, places).(chan string)
+	places := make(chan string, 5)
 
 	places <- "Grantchester"
 	places <- "Cambridge"
 	places <- "Prague"
+	close(places)
 
-	<-processed
-	<-processed
-	<-processed
+	ForEachChan(fmt.Println, places)
 
 	// Output:
 	// Grantchester
