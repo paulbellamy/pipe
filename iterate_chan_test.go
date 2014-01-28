@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-func expect(t *testing.T, result, expected interface{}) {
-	if result != expected {
-		t.Fatal("Expected:", expected, "\nGot:", result)
-	}
-}
-
 func TestIterateChan(t *testing.T) {
 	fib := func(f, s int) (int, int) {
 		return s, f + s
