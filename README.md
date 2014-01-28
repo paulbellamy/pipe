@@ -1,4 +1,4 @@
-# pipe
+# pipe [![Build Status](https://travis-ci.org/paulbellamy/pipe.png?branch=master)](https://travis-ci.org/paulbellamy/pipe)
 
 All the usual functional ways to work with sequences of data in Go.
 
