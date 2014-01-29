@@ -14,7 +14,7 @@ Because a bit of functional programming can make code a lot more readable and ex
 
 ## Should I Use This?
 
-It depends. Are you ok with sacrificing some of Go's static-type-checking and compile-time safety for more expressiveness?
+It depends. It is pretty heavy on runtime-reflection. Are you ok with sacrificing some of Go's static-type-checking and compile-time safety for more expressiveness?
 
 ## Documentation
 
